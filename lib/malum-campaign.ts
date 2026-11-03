@@ -10,4 +10,6 @@ export const hasHybridLight = (id: string) => ["latex", "otodus-shelter", "suit-
 export const hasCleanLeftRim = (id: string) => ["otodus-shelter", "bomber-passage"].includes(id);
 
 export const campaignAsset = (id: string, layer: "model" | "background" | "scene" | "subject") =>
+  id === "latex" && layer === "subject" ? "/collections/malum/hero/interactive/latex-hair-clean-subject.webp" :
+  id === "latex" && layer === "scene" ? "/collections/malum/hero/interactive/latex-cove-background-v2.webp" :
   `/collections/malum/hero/interactive/${id}-${layer === "subject" && hasCleanLeftRim(id) ? "left-clean-subject" : hasHybridLight(id) && layer === "subject" ? "hybrid-subject" : layer}.webp${layer === "subject" ? (hasHybridLight(id) ? "?v=5" : "?v=3") : ""}`;

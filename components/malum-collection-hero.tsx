@@ -9,6 +9,8 @@ import { MalumDepthLight } from "./malum-depth-light";
 import styles from "./malum-collection-hero.module.css";
 
 const imageCache = new Map<string, Promise<void>>();
+const suitViews = ["Front", "Right", "Back", "Left"];
+const suitViewAsset = (index: number) => index === 0 ? campaignAsset("suit-quay", "subject") : `/collections/malum/hero/interactive/suit-turn-${suitViews[index].toLowerCase()}.webp`;
 function preload(src: string) {
   let promise = imageCache.get(src);
   if (!promise) {
@@ -28,6 +30,14 @@ export function MalumCollectionHero({ collection }: { collection: Collection }) 
   const [orbit, setOrbit] = useState(0);
   const [pending, setPending] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [suitView, setSuitView] = useState(0);
+  const turnRequest = useRef(0);
+  const turning = useRef(false);
+  const [turnPhase, setTurnPhase] = useState<"idle" | "out" | "in">("idle");
+  const [turnDirection, setTurnDirection] = useState(1);
+  const turnWheel = useRef({ last: 0, used: false, distance: 0 });
+  const gestureArea = useRef<HTMLDivElement>(null);
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const runway = useRef<HTMLDivElement>(null);
   const scrollIndex = useRef(0);
   const snapUntil = useRef(0);
@@ -37,6 +47,49 @@ export function MalumCollectionHero({ collection }: { collection: Collection }) 
   const mounted = useRef(true);
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
   const look = campaignLooks[active];
+
+  const turnSuit = useCallback(async (index: number) => {
+    const next = (index + 4) % 4;
+    if (turning.current || next === suitView) return;
+    turning.current = true;
+    const token = ++turnRequest.current;
+    const valid = () => mounted.current && token === turnRequest.current;
+    const pause = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+    try {
+      await Promise.all([preload(suitViewAsset(next)), preload("/collections/malum/hero/interactive/suit-turn-background.webp")]);
+      if (!valid()) return;
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) { setSuitView(next); return; }
+      setTurnDirection(index > suitView ? 1 : -1);
+      setTurnPhase("out");
+      await pause(140);
+      if (!valid()) return;
+      setSuitView(next);
+      setTurnPhase("in");
+      await pause(220);
+      if (valid()) setTurnPhase("idle");
+    } catch { if (valid()) { setError("This view could not load. Please try again."); setTurnPhase("idle"); } }
+    finally { turning.current = false; }
+  }, [suitView]);
+
+  useEffect(() => {
+    const area = gestureArea.current;
+    if (active !== 3 || !area) return;
+    const gesture = turnWheel.current;
+    const wheel = (event: WheelEvent) => {
+      if (event.ctrlKey || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      event.preventDefault();
+      const now = performance.now();
+      if (now - gesture.last > 220) { gesture.used = false; gesture.distance = 0; }
+      gesture.last = now;
+      if (gesture.used) return;
+      gesture.distance += event.deltaX;
+      if (Math.abs(gesture.distance) < 24) return;
+      gesture.used = true;
+      void turnSuit(suitView + Math.sign(gesture.distance));
+    };
+    area.addEventListener("wheel", wheel, { passive: false });
+    return () => area.removeEventListener("wheel", wheel);
+  }, [active, suitView, turnSuit]);
 
   useEffect(() => {
     mounted.current = true;
@@ -162,15 +215,29 @@ export function MalumCollectionHero({ collection }: { collection: Collection }) 
             The same alignment keeps the frame and silhouette light registered. */}
         {campaignLooks.map((item, index) => (
           <div key={`${item.id}-background`} data-campaign-background={item.id} data-active={index === active} className={styles.background}>
-            <Image src={campaignAsset(item.id, "scene")} alt="" fill unoptimized priority={index === 0} className={styles.sceneImage} />
+            <Image src={item.id === "suit-quay" ? "/collections/malum/hero/interactive/suit-turn-background.webp" : campaignAsset(item.id, "scene")} alt="" fill unoptimized priority={index === 0} className={styles.sceneImage} />
             <svg className={styles.editorialFrame} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
               <path d="M 94 10 H 14 V 68 H 47" />
             </svg>
-            <Image src={campaignAsset(item.id, "subject")} alt="" fill unoptimized className={`${styles.sceneImage} ${styles.frameOccluder}`} />
-            <MalumDepthLight id={item.id} active={index === active} className={`${styles.sceneImage} ${styles.depthLight}`} />
+            {item.id === "suit-quay" ? suitViews.map((view, viewIndex) => (
+              <Image key={view} src={suitViewAsset(viewIndex)} alt="" fill unoptimized data-current={viewIndex === suitView} data-turn-phase={turnPhase} style={{ "--turn-direction": turnDirection } as CSSProperties} className={`${styles.sceneImage} ${styles.frameOccluder} ${styles.turnPortrait}`} />
+            )) : <Image src={campaignAsset(item.id, "subject")} alt="" fill unoptimized className={`${styles.sceneImage} ${styles.frameOccluder}`} />}
+            {(item.id !== "suit-quay" || turnPhase === "idle") && <MalumDepthLight id={item.id} subjectSrc={item.id === "suit-quay" && suitView !== 0 ? suitViewAsset(suitView) : undefined} active={index === active} className={`${styles.sceneImage} ${styles.depthLight}`} />}
           </div>
         ))}
       </div>
+      {active === 3 && <div ref={gestureArea} className={styles.turnGesture} aria-hidden="true"
+        onPointerDown={(event) => { pointerStart.current = { x: event.clientX, y: event.clientY }; event.currentTarget.setPointerCapture(event.pointerId); }}
+        onPointerCancel={() => { pointerStart.current = null; }}
+        onPointerUp={(event) => {
+          const start = pointerStart.current; pointerStart.current = null;
+          if (!start) return;
+          const dx = event.clientX - start.x, dy = event.clientY - start.y;
+          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) void turnSuit(suitView + (dx < 0 ? 1 : -1));
+        }} />}
+      {active === 3 && <div className={styles.turnControls} role="group" aria-label="Suit viewing angle">
+        {suitViews.map((label, index) => <button key={label} type="button" aria-label={`Show suit ${label.toLowerCase()} view`} title={label} aria-pressed={suitView === index} onClick={() => void turnSuit(index)}><span aria-hidden="true" /></button>)}
+      </div>}
       <div className={styles.copy}>
         <p className={styles["caption-1"]}>{collection.year}</p>
         <h1 id="malum-title" className={styles["heading-1"]}>MALUM</h1>
@@ -196,7 +263,7 @@ export function MalumCollectionHero({ collection }: { collection: Collection }) 
             const visible = Math.abs(delta) < 1.5;
             return (
             <button style={{ "--orbit-x": `${310 * (1 - Math.cos(angle))}px`, "--orbit-y": `${310 * Math.sin(angle)}px`, "--orbit-scale": 1 - Math.min(Math.abs(delta), 2) * .13, "--orbit-opacity": Math.max(0, Math.min(1, (1.5 - Math.abs(delta)) * 2)) } as CSSProperties} data-visible={visible} tabIndex={index === active ? 0 : -1} key={item.id} ref={(button) => { buttons.current[index] = button; }} type="button" title={item.name} data-look={item.id} aria-label={`Show ${item.name}`} aria-pressed={index === active} data-pending={pending === index} onClick={() => void select(index)} onKeyDown={(event) => navigate(event, index)} className={styles.thumbnail}>
-              <span className={styles.thumbImage}><Image src={campaignAsset(item.id, "scene")} alt="" fill sizes="460px" className={styles.thumbPhoto} /></span>
+              <span className={styles.thumbImage}><Image src={campaignAsset(item.id, "scene")} alt="" fill sizes="460px" className={styles.thumbPhoto} />{item.id === "latex" && <Image src={campaignAsset(item.id, "subject")} alt="" fill unoptimized sizes="460px" className={styles.thumbPhoto} />}</span>
               <span aria-hidden="true" className={styles.lookNumber}>{String(index + 1).padStart(2, "0")}</span>
             </button>
           );})}
