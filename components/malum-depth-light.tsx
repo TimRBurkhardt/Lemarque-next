@@ -37,29 +37,6 @@ void main(){
  gl_FragColor=vec4(.78,.88,1.,min(.68,highlight));
 }`;
 
-// Turn views use their exact full-resolution alpha contour, avoiding borrowed depth edges.
-const silhouetteFragment = `precision highp float;
-varying vec2 uv;
-uniform sampler2D subject;
-uniform vec2 texel;
-uniform vec2 light;
-uniform float strength;
-float alphaAt(vec2 p){return texture2D(subject,p).a;}
-void main(){
- float a=alphaAt(uv);
- if(a<.02){gl_FragColor=vec4(0.);return;}
- vec2 d=texel*2.;
- float l=alphaAt(uv-vec2(d.x,0.)),r=alphaAt(uv+vec2(d.x,0.));
- float t=alphaAt(uv-vec2(0.,d.y)),b=alphaAt(uv+vec2(0.,d.y));
- vec2 outward=vec2(l-r,t-b);
- vec2 delta=(light-uv)*vec2(1.6,1.);
- float facing=max(0.,dot(outward/max(length(outward),.001),delta/max(length(delta),.001)));
- float edge=max(0.,a-min(min(l,r),min(t,b)));
- float falloff=exp(-dot(delta,delta)*7.);
- float highlight=edge*facing*falloff*strength;
- gl_FragColor=vec4(.78,.88,1.,min(.28,highlight));
-}`;
-
 // Hybrid looks share the approved D tuning; Bomber keeps its original shader.
 const hybridFragment = fragment
   .replace("uniform sampler2D subject;", "uniform sampler2D subject;\nuniform sampler2D rimNormal;")
@@ -75,7 +52,8 @@ export function MalumDepthLight({ id, active, className, subjectSrc }: { id: str
     if (!canvas || !active) return;
     const media = matchMedia("(pointer: fine) and (prefers-reduced-motion: no-preference)");
     if (!media.matches) return;
-    const hybrid = hasHybridLight(id);
+    const hybrid = Boolean(subjectSrc) || hasHybridLight(id);
+    const mapId = subjectSrc ? subjectSrc.split("/").pop()!.replace(/\.webp$/, "") : id;
     const cleanLeft = hasCleanLeftRim(id);
     // Anchor the coat and bomber left rim to alpha, not the blurred depth matte.
     // The approved coat tuning and all other looks remain unchanged.
@@ -112,6 +90,14 @@ export function MalumDepthLight({ id, active, className, subjectSrc }: { id: str
     // Suppress the isolated crown highlight on the coat; leave the torso untouched.
     const lightFragment = id === "otodus-shelter" ? rightCorrectedFragment.replace("float falloff=",
       "float crown=1.-smoothstep(.07,.15,uv.y);\n float headLeft=1.-smoothstep(.325,.34,uv.x);\n surface*=1.-crown*headLeft;\n edge*=1.-.8*crown*headLeft;\n float falloff=") : rightCorrectedFragment;
+    const turnFragment = hybridFragment
+      .replace("float a=smoothstep(.65,.98,matte)*texture2D(subject,uv).a;", "float a=texture2D(subject,uv).a;")
+      .replace("float facing=", `float al=texture2D(subject,uv-vec2(texel.x*2.,0.)).a;
+ float ar=texture2D(subject,uv+vec2(texel.x*2.,0.)).a;
+ float at=texture2D(subject,uv-vec2(0.,texel.y*2.)).a;
+ float ab=texture2D(subject,uv+vec2(0.,texel.y*2.)).a;
+ edge=max(0.,a-min(min(al,ar),min(at,ab)));
+ float facing=`);
     const target = canvas.closest("section");
     const gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: false, antialias: false });
     if (!gl || !target) return;
@@ -131,7 +117,7 @@ export function MalumDepthLight({ id, active, className, subjectSrc }: { id: str
     const buffer = gl.createBuffer();
     try {
       gl.attachShader(program, compile(gl.VERTEX_SHADER, vertex));
-      gl.attachShader(program, compile(gl.FRAGMENT_SHADER, subjectSrc ? silhouetteFragment : lightFragment));
+      gl.attachShader(program, compile(gl.FRAGMENT_SHADER, subjectSrc ? turnFragment : lightFragment));
       gl.linkProgram(program);
       if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error("Depth light link failed");
     } catch (error) {
@@ -164,7 +150,7 @@ export function MalumDepthLight({ id, active, className, subjectSrc }: { id: str
       const rect=canvas.getBoundingClientRect();
       targetX=(event.clientX-rect.left)/rect.width; targetY=(event.clientY-rect.top)/rect.height;
       if (current<.01) { x=targetX; y=targetY; }
-      desired=subjectSrc ? .7 : hybrid ? .55 : 1.35; schedule();
+      desired=hybrid ? .55 : 1.35; schedule();
     };
     const leave = () => { desired=0; schedule(); };
     const preference = () => { if (!media.matches) leave(); };
@@ -189,11 +175,11 @@ export function MalumDepthLight({ id, active, className, subjectSrc }: { id: str
         gl.uniform2f(gl.getUniformLocation(program,"texel"),1/canvas.width,1/canvas.height);
       }
     };
-    void Promise.all(subjectSrc ? [load(subjectSrc,0,"subject")] : [
-      load(id === "latex" ? "/collections/malum/hero/interactive/latex-hair-clean-packed.png" : cleanLeft ? `/collections/malum/hero/interactive/${id}-left-clean-packed.png` : hybrid ? `/collections/malum/hero/interactive/${id}-hybrid-packed.png?v=4` : `/collections/malum/hero/interactive/${id}-depth-packed.png?v=3`,0,"depthMap"),
-      load(campaignAsset(id,"subject"),1,"subject"),
-      load(cleanLeft ? `/collections/malum/hero/interactive/${id}-left-clean-normal.png` : `/collections/malum/hero/interactive/${id}-${hybrid ? "hybrid-normal" : "normals"}.png${hybrid ? "?v=4" : ""}`,2,"normalMap"),
-      ...(hybrid ? [load(`/collections/malum/hero/interactive/${id}-hybrid-depth-normal.png?v=4`,3,"rimNormal")] : []),
+    void Promise.all([
+      load(subjectSrc ? `/collections/malum/hero/interactive/${mapId}-hybrid-packed.png` : id === "latex" ? "/collections/malum/hero/interactive/latex-hair-clean-packed.png" : cleanLeft ? `/collections/malum/hero/interactive/${id}-left-clean-packed.png` : hybrid ? `/collections/malum/hero/interactive/${id}-hybrid-packed.png?v=4` : `/collections/malum/hero/interactive/${id}-depth-packed.png?v=3`,0,"depthMap"),
+      load(subjectSrc || campaignAsset(id,"subject"),1,"subject"),
+      load(subjectSrc ? `/collections/malum/hero/interactive/${mapId}-hybrid-normal.png` : cleanLeft ? `/collections/malum/hero/interactive/${id}-left-clean-normal.png` : `/collections/malum/hero/interactive/${id}-${hybrid ? "hybrid-normal" : "normals"}.png${hybrid ? "?v=4" : ""}`,2,"normalMap"),
+      ...(hybrid ? [load(`/collections/malum/hero/interactive/${mapId}-hybrid-depth-normal.png?v=4`,3,"rimNormal")] : []),
     ]).then(()=>{if(!disposed){ready=true;canvas.dataset.ready="true";schedule();}})
       .catch(error=>{if(!disposed) console.warn("MALUM depth texture unavailable",error);});
     return () => {
