@@ -120,12 +120,21 @@ export function MalumCollectionHero({ collection }: { collection: Collection }) 
       const { width, height } = element.getBoundingClientRect();
       element.querySelectorAll<HTMLElement>("[data-campaign-background]").forEach((layer, index) => {
         const [center, crown, sole] = anchors[index];
-        const imageHeight = Math.max(height * 0.90 / (sole - crown), width / 1.6);
+        // Match the visible menu strokes: header inset + half the unused button width.
+        const menuRightInset = width < 768 ? 36 : 60;
+        const frameEnd = 100 * (width - menuRightInset) / width;
+        layer.querySelector("svg path")?.setAttribute("d", `M ${frameEnd} 10 H 14 V 68 H 47`);
+        // Fit the complete figure to the stage height. Width must never
+        // enlarge the photograph past the crown/sole framing on ultrawide screens.
+        const imageHeight = height * 0.90 / (sole - crown);
         const imageWidth = imageHeight * 1.6;
         const targetX = width < 768 ? 0.38 : 0.32;
+        const imageLeft = width * targetX - imageWidth * center;
+        const hasExposedEdge = imageLeft > 0 || imageLeft + imageWidth < width;
+        layer.style.setProperty("--scene-edge-fade", hasExposedEdge ? "8%" : "0%");
         layer.style.setProperty("--scene-width", `${imageWidth}px`);
         layer.style.setProperty("--scene-height", `${imageHeight}px`);
-        layer.style.setProperty("--scene-left", `${width * targetX - imageWidth * center}px`);
+        layer.style.setProperty("--scene-left", `${imageLeft}px`);
         layer.style.setProperty("--scene-top", `${height * 0.04 - imageHeight * crown}px`);
       });
     });
@@ -163,7 +172,7 @@ export function MalumCollectionHero({ collection }: { collection: Collection }) 
         ))}
       </div>
       <div className={styles.copy}>
-        <p className={styles["caption-1"]}>{collection.season} {collection.year}</p>
+        <p className={styles["caption-1"]}>{collection.year}</p>
         <h1 id="malum-title" className={styles["heading-1"]}>MALUM</h1>
         <div className={styles.selectedLook} aria-live="polite" aria-atomic="true">
           <Link className={styles["title-4"]} href={`/product/${look.slug}`}>{look.name}</Link>
