@@ -1,0 +1,35 @@
+{
+  "direction": "Static individual garment packshots only; no walking figures, outfits, extra trousers or footwear. No image hover zoom.",
+  "generator": "Built-in image_gen",
+  "images": [
+    {
+      "id": "otodus",
+      "slug": "malum-otodus-cashmere-coat",
+      "prompt": "Use case: product-mockup. Edit the reference into a simple still ecommerce packshot of the actual clothing alone. ONLY the long black cashmere coat. Four rows of two silver shark tooth fasteners, eight total. Broad notched lapels. Sleeves hanging straight down and hem perfectly at rest. Remove the white shirt, trousers and boots entirely. Empty collar opening and coat interior. No other garment. Preserve the exact reference garment construction, cut, texture, colors, pockets, seams and hardware. Absolutely no body, human, model, visible mannequin, hanger, stand, walking pose, action, movement, wind, swinging fabric or tilted camera. This should read as an isolated garment for a catalog, NOT as an invisible person walking. Subtle volume just to explain garment construction; calm balanced silhouette. Pure white seamless #ffffff background with minimal soft shadow. Even soft studio lighting, sharp authentic textile detail. Vertical 2:3 composition, whole garment centered within frame, occupying 80 percent of height, plenty of white margin. No lettering, props or watermark.",
+      "source": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-59479a87-73b1-4adc-bc62-92d0b2ecaf07.png",
+      "output": "public/collections/malum/campaign/white-v18/otodus.webp"
+    },
+    {
+      "id": "latex",
+      "slug": "malum-black-latex-dress",
+      "prompt": "Use case: product-mockup. Edit the reference into a simple still ecommerce packshot of the actual clothing alone. ONLY the black halterneck latex dress with its original slit and asymmetric side ruffles. Straight frontal neutral product view, hem and ruffles hanging naturally down at rest, no twist or flaring. Remove all jewelry and shoes. Preserve the exact reference garment construction, cut, texture, colors, pockets, seams and hardware. Absolutely no body, human, model, visible mannequin, hanger, stand, walking pose, action, movement, wind, swinging fabric or tilted camera. This should read as an isolated garment for a catalog, NOT as an invisible person walking. Subtle volume just to explain garment construction; calm balanced silhouette. Pure white seamless #ffffff background with minimal soft shadow. Even soft studio lighting, sharp authentic textile detail. Vertical 2:3 composition, whole garment centered within frame, occupying 80 percent of height, plenty of white margin. No lettering, props or watermark.",
+      "source": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-564e3045-1268-4cdb-9c83-adf036ac8029.png",
+      "output": "public/collections/malum/campaign/white-v18/latex.webp"
+    },
+    {
+      "id": "bomber",
+      "slug": "malum-bomber-jacket",
+      "prompt": "Use case: product-mockup. Edit the reference into a simple still ecommerce packshot of the actual clothing alone. ONLY the black technical bomber jacket, tall stand collar, silver snaps and central zip, tonal fabric panels, cargo sleeve pockets and ribbed waistband. Frontal symmetric product view, both sleeves hanging quietly downward at the same angle. Remove trousers, shoes and prosthesis. Preserve the exact reference garment construction, cut, texture, colors, pockets, seams and hardware. Absolutely no body, human, model, visible mannequin, hanger, stand, walking pose, action, movement, wind, swinging fabric or tilted camera. This should read as an isolated garment for a catalog, NOT as an invisible person walking. Subtle volume just to explain garment construction; calm balanced silhouette. Pure white seamless #ffffff background with minimal soft shadow. Even soft studio lighting, sharp authentic textile detail. Vertical 2:3 composition, whole garment centered within frame, occupying 80 percent of height, plenty of white margin. No lettering, props or watermark.",
+      "source": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-52220cf7-96f4-4bee-b9be-3f74b5ad6173.png",
+      "output": "public/collections/malum/campaign/white-v18/bomber.webp"
+    },
+    {
+      "id": "suit",
+      "slug": "malum-cashmere-barathea-suit",
+      "prompt": "Use case: product-mockup. Edit the reference into a simple still ecommerce packshot of the actual clothing alone. ONLY the tailored black cashmere barathea blazer with wide peak lapels and its single button. Frontal symmetric product view, sleeves hanging straight and hem at rest. Remove shirt, trousers, gloves and shoes entirely. Empty collar opening with black interior lining. No other garment. Preserve the exact reference garment construction, cut, texture, colors, pockets, seams and hardware. Absolutely no body, human, model, visible mannequin, hanger, stand, walking pose, action, movement, wind, swinging fabric or tilted camera. This should read as an isolated garment for a catalog, NOT as an invisible person walking. Subtle volume just to explain garment construction; calm balanced silhouette. Pure white seamless #ffffff background with minimal soft shadow. Even soft studio lighting, sharp authentic textile detail. Vertical 2:3 composition, whole garment centered within frame, occupying 80 percent of height, plenty of white margin. No lettering, props or watermark.",
+      "source": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-34168986-51dd-4fba-a9d2-afd476c39e91.png",
+      "output": "public/collections/malum/campaign/white-v18/suit.webp"
+    }
+  ],
+  "siren": "Unmodified original: public/collections/malum/products/malum-siren-gown/01.webp"
+}

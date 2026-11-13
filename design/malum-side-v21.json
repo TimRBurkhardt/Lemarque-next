@@ -1,0 +1,27 @@
+{
+  "generator": "Built-in image_gen",
+  "purpose": "Static model-free alternate views for the requested one-time entrance sequence",
+  "images": [
+    {
+      "id": "otodus",
+      "slug": "malum-otodus-cashmere-coat",
+      "prompt": "Use case: product-mockup. Create ONE alternative product photograph for the existing static clothing catalog. Reference 1 is the existing isolated front packshot; reference 2 is original garment construction reference, ignore the person. Long black cashmere coat with broad lapels and eight silver shark-tooth fasteners in four pairs; preserve count, exact cut and long straight hem. Show only this same garment from a restrained THREE-QUARTER SIDE angle approximately 40 degrees to camera-right, hanging completely still, sleeves down and no body pose. Absolutely no people, head, skin, mannequin, walking motion, legs, hanger or stand. Preserve the exact original design, material and color. Pure white seamless background and minimal soft shadow, match reference 1 lighting and garment scale. Complete garment inside a vertical 2:3 image, occupying 80 percent of image height, centered. This image will crossfade with reference 1 so keep its framing and scale consistent. No added details, text, watermarks, blur or props.",
+      "source": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-e8bdee28-0790-4bbd-a268-3d3ceee0aaf6.png",
+      "output": "public/collections/malum/campaign/white-v21/otodus-side.webp"
+    },
+    {
+      "id": "latex",
+      "slug": "malum-black-latex-dress",
+      "prompt": "Use case: product-mockup. Create ONE alternative product photograph for the existing static clothing catalog. Reference 1 is the existing isolated front packshot; reference 2 is original garment construction reference, ignore the person. Glossy black halterneck latex slit dress with asymmetric ruffles at its side. Preserve the halter neckline, slit, length, and ruffle construction. Show only this same garment from a restrained THREE-QUARTER SIDE angle approximately 40 degrees to camera-right, hanging completely still, sleeves down and no body pose. Absolutely no people, head, skin, mannequin, walking motion, legs, hanger or stand. Preserve the exact original design, material and color. Pure white seamless background and minimal soft shadow, match reference 1 lighting and garment scale. Complete garment inside a vertical 2:3 image, occupying 80 percent of image height, centered. This image will crossfade with reference 1 so keep its framing and scale consistent. No added details, text, watermarks, blur or props.",
+      "source": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-12c88673-61b3-4c83-a050-2035e52217de.png",
+      "output": "public/collections/malum/campaign/white-v21/latex-side.webp"
+    },
+    {
+      "id": "suit",
+      "slug": "malum-cashmere-barathea-suit",
+      "prompt": "Use case: product-mockup. Create ONE alternative product photograph for the existing static clothing catalog. Reference 1 is the existing isolated front packshot; reference 2 is original garment construction reference, ignore the person. Only the black cashmere barathea suit JACKET, broad peak lapels, single button and fitted waist. No shirt, trousers, gloves, shoes or accessories. Show only this same garment from a restrained THREE-QUARTER SIDE angle approximately 40 degrees to camera-right, hanging completely still, sleeves down and no body pose. Absolutely no people, head, skin, mannequin, walking motion, legs, hanger or stand. Preserve the exact original design, material and color. Pure white seamless background and minimal soft shadow, match reference 1 lighting and garment scale. Complete garment inside a vertical 2:3 image, occupying 80 percent of image height, centered. This image will crossfade with reference 1 so keep its framing and scale consistent. No added details, text, watermarks, blur or props.",
+      "source": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-3a14d528-8d0d-461a-baf3-68806c234999.png",
+      "output": "public/collections/malum/campaign/white-v21/suit-side.webp"
+    }
+  ]
+}

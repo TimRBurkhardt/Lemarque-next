@@ -1,0 +1,47 @@
+{
+  "version": "product-design-v23",
+  "scope": [
+    "Product detail template",
+    "Shared collection/product header and menu"
+  ],
+  "preview": "http://localhost:3100/product/malum-bomber-jacket",
+  "design": [
+    "Light collection surface and centered small original crest",
+    "Large original product gallery with thumbnails, arrows and swipe",
+    "Right-side title, original description, price upon request and inquiry",
+    "Broad typographic menu with current collection garment preview",
+    "Large secondary photographs and existing related products"
+  ],
+  "preserved": [
+    "Original product data and photographs",
+    "Product URLs",
+    "Contact destination",
+    "Related/look-sibling eligibility",
+    "Collection hover and two-tap interactions"
+  ],
+  "checks": {
+    "desktop_and_mobile_widths": [
+      1440,
+      768,
+      390,
+      320
+    ],
+    "horizontal_overflow": false,
+    "browser_errors": [],
+    "gallery_arrows_thumbnails_keyboard": true,
+    "touch_swipe": true,
+    "gallery_end_disabled": true,
+    "menu_escape_close": true,
+    "return_to_collection": true,
+    "menu_shop_link": true,
+    "two_photo_product": true,
+    "production_build": "passed",
+    "typescript": "passed",
+    "eslint_changed_components": "passed",
+    "git_diff_check": "passed",
+    "product_thumbnail_mouse_hover": true,
+    "product_thumbnail_touch_tap": true,
+    "collection_thumbnail_mouse_hover": true
+  },
+  "archive": "design/archive/pre-product-v23/"
+}

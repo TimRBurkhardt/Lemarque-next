@@ -1,0 +1,46 @@
+{
+  "version": "malum-design-pass-v22",
+  "route": "/collection/malum",
+  "scope": "Local MALUM collection only; no deployment",
+  "changes": [
+    "Right-aligned collection title and right-side detail information",
+    "Single right-to-left entrance photo pass, garment-only targets",
+    "Larger garments; desktop 1.30 preview and 28px neighboring displacement",
+    "Explicit pointer/keyboard preview state prevents sticky clicked hover",
+    "Mobile first tap retains image controls; second opens collection detail",
+    "Thumbnail containment fixed; original product links remain explicit"
+  ],
+  "assets": "design/malum-side-v21.json",
+  "checks": {
+    "entrance_order": [
+      "siren",
+      "suit",
+      "bomber",
+      "latex",
+      "otodus"
+    ],
+    "no_loop": true,
+    "reduced_motion_skips_entrance": true,
+    "hover_exit_after_thumbnail_click": true,
+    "mobile_two_taps": true,
+    "mobile_thumbnail_selection": true,
+    "mobile_close": true,
+    "no_horizontal_overflow_widths": [
+      320,
+      390,
+      768,
+      1440
+    ],
+    "browser_errors": [],
+    "production_build": "passed",
+    "typescript": "passed",
+    "component_eslint": "passed",
+    "git_diff_check": "passed",
+    "keyboard_preview_and_escape": "passed"
+  },
+  "screenshots": [
+    "design/malum-hover-v22-desktop.png",
+    "design/malum-preview-v22-mobile.png"
+  ],
+  "archive": "design/archive/malum-entrance-v21/"
+}

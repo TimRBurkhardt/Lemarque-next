@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { BRAND_TAGLINE } from "@/lib/brand";
 import { collections, getCollection } from "@/lib/collections";
 import { CollectionDetailClient } from "./collection-detail-client";
+import { MalumMinimalCollection } from "@/components/malum-minimal-collection";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${collection.name} | ${collection.season} ${collection.year}`,
-    description: collection.description,
+    description: slug === "malum" ? "MALUM by LEMARQUE. Sculptural outerwear, tailoring and gowns. Discover five selected pieces from the collection." : collection.description,
     openGraph: {
       title: shareTitle,
       description: collection.description,
@@ -49,6 +50,8 @@ export default async function CollectionPage({ params }: PageProps) {
   if (!collection) {
     notFound();
   }
+
+  if (slug === "malum") return <MalumMinimalCollection />;
 
   return <CollectionDetailClient collection={collection} />;
 }
