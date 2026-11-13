@@ -1,0 +1,42 @@
+{
+  "version": "malum-entrance-v24",
+  "reason": "Creator rejected the automatic entrance photo changes as visually strange",
+  "direction": "One coherent right-to-left garment reveal; stable silhouettes",
+  "timing": {
+    "duration_ms": 840,
+    "stagger_ms": 90,
+    "total_ms": 1200,
+    "settling_distance_px": 12,
+    "opacity_from": 0.25,
+    "easing": "cubic-bezier(.22,1,.36,1)",
+    "manual_photo_transition_ms": 180
+  },
+  "checks": {
+    "desktop_order": [
+      "siren",
+      "suit",
+      "bomber",
+      "latex",
+      "otodus"
+    ],
+    "mobile_order": [
+      "latex",
+      "bomber",
+      "otodus",
+      "suit",
+      "siren"
+    ],
+    "all_photos_remain_front_views": true,
+    "no_loop": true,
+    "hover_cancels_entrance": true,
+    "hover_image_selection": true,
+    "reduced_motion_skips_animation": true,
+    "browser_errors": [],
+    "eslint": "passed",
+    "typescript": "passed",
+    "production_build": "passed",
+    "classic_route": "/collection/malum/classic",
+    "classic_http_status": 200,
+    "current_http_status": 200
+  }
+}

@@ -115,11 +115,17 @@
 @media (hover: none) { .hoverPanel { display: none; } }
 @media (prefers-reduced-motion: reduce) { .piece .image, .piece[data-preview-active="true"] .image { transform: none; } .page *, .page *::before, .page *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
 
-.photo { opacity: 0; transition: opacity 600ms cubic-bezier(.22,1,.36,1); }
+.photo { opacity: 0; transition: opacity 180ms ease-out; }
 .photo[data-active="true"] { opacity: 1; }
-.piece[data-intro-active="true"] .image { transform: scale(1.12); }
-.lineup[data-intro-running="true"] .piece:not([data-intro-active="true"]) .image { opacity: .65; }
 .signatureGroup { display: flex; align-items: center; gap: 24px; }
-.discover .pauseIntro { gap: 6px; min-height: 44px; border: none; font-size: 8px; color: #666; }
 @media (max-width: 767px) { .signatureGroup { gap: 8px; } }
-@media (prefers-reduced-motion: reduce) { .piece[data-intro-active="true"] .image { transform: none; } .photo { transition: none; } }
+/* One quiet reveal; the photograph and silhouette remain unchanged. */
+.lineup[data-entering="true"] .image { animation: garmentArrival 840ms cubic-bezier(.22,1,.36,1) backwards; animation-delay: calc(var(--entrance-order) * 90ms); }
+@keyframes garmentArrival {
+  from { opacity: .25; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 767px) {
+  .lineup[data-entering="true"] .image { animation-delay: calc(var(--entrance-mobile-order) * 90ms); }
+}
+@media (prefers-reduced-motion: reduce) { .photo { transition: none; } }

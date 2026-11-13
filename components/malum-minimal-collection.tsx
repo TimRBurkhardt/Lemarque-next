@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Pause, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, X } from "lucide-react";
 import { CONTACT_HREF } from "@/lib/brand";
 import styles from "./malum-minimal-collection.module.css";
 import { AtelierHeader } from "./atelier-header";
@@ -30,8 +30,8 @@ const galleries = pieces.map((piece, index) => [
   ...(["otodus", "latex", "suit"].includes(piece.id) ? [{ src: `/collections/malum/campaign/white-v21/${piece.id}-side.webp`, label: "Side · garment", alt: `${piece.name}, isolated three-quarter side view` }] : []),
 ]);
 
-// Only model-free images participate in the single entrance pass.
-const entranceViews = [3, 3, 2, 3, 1];
+// Reading order follows the garments’ on-screen positions on mobile.
+const mobileEntranceOrder = [2, 0, 1, 3, 4];
 
 function PieceImage({ index, view = 0, sizes, priority = false }: { index: number; view?: number; sizes: string; priority?: boolean }) {
   return <>{galleries[index].map((photo, photoIndex) => <Image key={photo.src} src={photo.src} alt={photoIndex === view ? photo.alt : ""} aria-hidden={photoIndex !== view} className={styles.photo} data-active={photoIndex === view} fill sizes={sizes} priority={priority && photoIndex === view} unoptimized />)}</>;
@@ -58,59 +58,29 @@ function ImageControls({ index, view, onChange, className = "", previewOnHover =
 export function MalumMinimalCollection() {
   const [selected, setSelected] = useState<number | null>(null);
   const [views, setViews] = useState([0, 0, 0, 0, 0]);
-  const [introActive, setIntroActive] = useState<number | null>(null);
-  const [introRunning, setIntroRunning] = useState(false);
+  const [entering, setEntering] = useState(true);
   const [preview, setPreview] = useState<number | null>(null);
   const [touchPreview, setTouchPreview] = useState(false);
   const inputMode = useRef("mouse");
-  const introInterrupted = useRef(false);
-  const introTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const heading = useRef<HTMLHeadingElement>(null);
   const pieceButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const piece = selected === null ? null : pieces[selected];
 
-  const stopIntro = useCallback(() => {
-    introInterrupted.current = true;
-    introTimers.current.forEach(clearTimeout);
-    introTimers.current = [];
-    setIntroActive(null);
-    setIntroRunning(false);
-  }, []);
+  const stopIntro = useCallback(() => setEntering(false), []);
 
   useEffect(() => {
-    let disposed = false;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reduced.matches || introInterrupted.current) return;
     const onVisibility = () => { if (document.hidden) stopIntro(); };
     const onScroll = () => { if (window.scrollY > 60) stopIntro(); };
     const onPreference = () => { if (reduced.matches) stopIntro(); };
+    // CSS starts with the first paint; never wait for alternate photo downloads.
+    // Remove the entrance state after the last garment settles so it cannot replay.
+    const end = window.setTimeout(stopIntro, 1200);
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("scroll", onScroll, { passive: true });
     reduced.addEventListener("change", onPreference);
-    const later = (callback: () => void, delay: number) => introTimers.current.push(setTimeout(() => { if (!disposed && !introInterrupted.current) callback(); }, delay));
-
-    // Decode both sides before crossfading so a slow request cannot flash white.
-    Promise.all(pieces.flatMap((_, index) => [0, entranceViews[index]].map(view => {
-      const image = new window.Image();
-      image.src = galleries[index][view].src;
-      return image.decode();
-    }))).then(() => {
-      if (disposed || introInterrupted.current || document.hidden) return;
-      later(() => {
-        setIntroRunning(true);
-        const order = pieces.map((_, index) => index).sort((a, b) => (pieceButtons.current[b]?.getBoundingClientRect().x ?? b) - (pieceButtons.current[a]?.getBoundingClientRect().x ?? a));
-        order.forEach((index, step) => {
-          later(() => setIntroActive(index), step * 1350);
-          later(() => setViews(current => current.map((view, i) => i === index ? entranceViews[index] : view)), step * 1350 + 300);
-        });
-        later(() => { setIntroActive(null); setIntroRunning(false); }, order.length * 1350);
-      }, 1100);
-    }).catch(() => { /* Keep the still collection if an entrance image fails. */ });
-
     return () => {
-      disposed = true;
-      introTimers.current.forEach(clearTimeout);
-      introTimers.current = [];
+      window.clearTimeout(end);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("scroll", onScroll);
       reduced.removeEventListener("change", onPreference);
@@ -169,9 +139,9 @@ export function MalumMinimalCollection() {
           </div>
 
           {selected === null ? (
-            <div id="malum-pieces" className={styles.lineup} data-intro-running={introRunning} data-previewing={preview !== null} role="group" aria-label="Five selected MALUM pieces">
+            <div id="malum-pieces" className={styles.lineup} data-entering={entering} data-previewing={preview !== null} role="group" aria-label="Five selected MALUM pieces">
               {pieces.map((item, index) => (
-                <div key={item.id} data-intro-active={introActive === index} data-piece={item.id} data-preview-active={preview === index} data-touch-preview={touchPreview} style={{ "--piece-shift": preview === null || preview === index ? "0px" : `${Math.sign(index - preview) * 28}px` } as CSSProperties} className={`${styles.piece} ${item.shape === "short" ? styles.short : ""}`} onPointerEnter={event => {
+                <div key={item.id} data-piece={item.id} data-preview-active={preview === index} data-touch-preview={touchPreview} style={{ "--entrance-order": pieces.length - 1 - index, "--entrance-mobile-order": mobileEntranceOrder[index], "--piece-shift": preview === null || preview === index ? "0px" : `${Math.sign(index - preview) * 28}px` } as CSSProperties} className={`${styles.piece} ${item.shape === "short" ? styles.short : ""}`} onPointerEnter={event => {
                   stopIntro();
                   if (event.pointerType === "mouse") { setPreview(index); setTouchPreview(false); }
                 }} onPointerLeave={event => { if (event.pointerType === "mouse") setPreview(null); }} onFocusCapture={() => {
@@ -205,7 +175,7 @@ export function MalumMinimalCollection() {
           </div>}
 
           {!piece && <div className={styles.discover}>
-            <div className={styles.signatureGroup}><span className={styles.collectionSignature}>Manufactured attire.</span>{introRunning && <button className={styles.pauseIntro} onClick={stopIntro} aria-label="Pause entrance animation"><Pause size={11} aria-hidden="true" /> Pause</button>}</div>
+            <div className={styles.signatureGroup}><span className={styles.collectionSignature}>Manufactured attire.</span></div>
             <button onClick={() => select(0)}>Explore pieces <ArrowRight size={16} aria-hidden="true" /></button>
           </div>}
         </section>
