@@ -53,7 +53,7 @@
 .openPreview { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; margin-top: 12px; border-bottom: 1px solid #171717; font-size: 9px; }
 .discover { position: absolute; left: 32px; right: 6%; bottom: 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .collectionSignature { font-size: 9px; letter-spacing: .08em; color: #707070; text-transform: none; }
-.discover button { display: inline-flex; align-items: center; justify-content: space-between; gap: 36px; min-height: 44px; font-size: 10px; letter-spacing: .06em; border-bottom: 1px solid #171717; }
+.discover button { display: inline-flex; align-items: center; justify-content: space-between; gap: 36px; min-height: 44px; font-size: 10px; letter-spacing: .06em; }
 .discover button:hover { color: #666; }
 .detail { position: absolute; inset: 112px 0 64px; }
 .detailImage { position: absolute; left: 8%; top: 0; width: 48%; height: 100%; mix-blend-mode: multiply; }

@@ -124,9 +124,9 @@ export function MalumMinimalCollection() {
         <section className={`${styles.stage} ${piece ? styles.detailStage : ""}`} aria-labelledby="malum-title">
           <div className={`${styles.information} ${piece ? styles.pieceInformation : ""}`}>
             {piece && <button className={styles.back} onClick={showCollection}><ArrowLeft size={12} aria-hidden="true" /> Back to collection</button>}
-            <p className={styles.eyebrow}>{piece ? `MALUM / 0${selected! + 1}` : "Collection / 2026"}</p>
+            {piece && <p className={styles.eyebrow}>{`MALUM / 0${selected! + 1}`}</p>}
             <h1 id="malum-title" ref={heading} tabIndex={-1}>{piece?.name ?? "MALUM"}</h1>
-            <p className={styles.specification}>{piece?.category ?? "Five selected pieces"}</p>
+            <p className={styles.specification}>{piece?.category ?? "Collection"}</p>
             {selected !== null && piece && <>
               <ImageControls index={selected} view={views[selected]} onChange={view => changeView(selected, view)} className={styles.detailControls} />
               <Link className={styles.pieceLink} href={`/product/${piece.slug}`}>View piece <ArrowUpRight size={16} aria-hidden="true" /></Link>
