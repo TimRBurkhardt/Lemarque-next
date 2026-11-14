@@ -1,0 +1,13 @@
+.surface {
+  --atelier-gutter: clamp(32px, 4vw, 64px);
+  --atelier-gap: 32px;
+  --text-caption: .6875rem;
+  --text-ui: .75rem;
+  --text-label: .875rem;
+  --text-body: 1rem;
+  --ink-secondary: #626262;
+  --surface: #f5f5f5;
+  font-kerning: normal;
+}
+@media (min-width: 768px) and (max-width: 1100px) { .surface { --atelier-gap: 20px; } }
+@media (max-width: 767px) { .surface { --atelier-gutter: 24px; --atelier-gap: 20px; } }

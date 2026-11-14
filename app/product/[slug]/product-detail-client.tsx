@@ -5,10 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { AtelierHeader, AtelierFooter } from "@/components/atelier-header";
-import { CONTACT_HREF } from "@/lib/brand";
+import { CONTACT_HREF, pieceInquiryHref } from "@/lib/brand";
 import type { Collection } from "@/lib/collections";
 import { type Product, getLookSiblings, getRelatedProducts } from "@/lib/products";
 import styles from "./product-detail.module.css";
+import system from "@/components/atelier-system.module.css";
+import { AtelierImage } from "@/components/atelier-image";
 
 // Prefer the existing garment-only studio photograph where one is available.
 function productPhotos(product: Product) {
@@ -48,9 +50,9 @@ function ProductPageContent({ product, collection }: { product: Product; collect
       if (offset < strip.scrollLeft || offset + thumbnail.offsetWidth > strip.scrollLeft + strip.clientWidth) strip.scrollTo({ left: offset - strip.clientWidth / 2 + thumbnail.offsetWidth / 2, behavior: "instant" });
     }
   };
-  return <div className={styles.page}>
+  return <div className={`${system.surface} ${styles.page}`}>
     <a href="#piece-information" className={styles.skip}>Skip to piece information</a>
-    <AtelierHeader />
+    <AtelierHeader collectionHref={collectionHref} collectionName={collection?.name} />
     <main>
       <article className={styles.product}>
         <section className={styles.gallery} aria-label={`${product.name} photographs`} onKeyDown={event => {
@@ -64,7 +66,7 @@ function ProductPageContent({ product, collection }: { product: Product; collect
             if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) change(active + (dx < 0 ? 1 : -1));
             touchStart.current = null;
           }}>
-            <Image key={photos[active].src} src={photos[active].src} alt={photos[active].alt} fill priority={active === 0} sizes="(max-width: 767px) 100vw, 61vw" />
+            <AtelierImage src={photos[active].src} alt={photos[active].alt} fill priority={active === 0} sizes="(max-width: 767px) 100vw, 61vw" />
           </div>
           <div className={styles.galleryBar}>
             <span aria-live="polite" aria-atomic="true">{String(active + 1).padStart(2, "0")} <span>/ {String(photos.length).padStart(2, "0")}</span></span>
@@ -79,7 +81,11 @@ function ProductPageContent({ product, collection }: { product: Product; collect
           <p className={styles.eyebrow}>{collection?.name ?? "LEMARQUE"} <span>/ {product.category}</span></p>
           <h1>{product.name}</h1>
           <p className={styles.description}>{product.description}</p>
-          <div className={styles.inquiry}><p>{product.price}</p><a href={CONTACT_HREF} target="_blank" rel="noopener noreferrer" aria-label={`Inquire about ${product.name}`}>Inquire about this piece <ArrowUpRight size={18} aria-hidden="true" /></a></div>
+          <div className={styles.inquiry}>
+            <p>{product.price}</p>
+            <a className={styles.inquiryAction} href={pieceInquiryHref(product.name, product.slug)} aria-label={`Email an inquiry about ${product.name}`}>Email about this piece <ArrowUpRight size={18} aria-hidden="true" /></a>
+            <a className={styles.contactAlternative} href={CONTACT_HREF}>Other contact options <ArrowUpRight size={12} aria-hidden="true" /></a>
+          </div>
           <dl className={styles.facts}><div><dt>Collection</dt><dd>{collection?.name ?? "LEMARQUE"}{collection?.year ? ` · ${collection.year}` : ""}</dd></div><div><dt>Category</dt><dd>{product.category}</dd></div></dl>
         </div>
       </article>

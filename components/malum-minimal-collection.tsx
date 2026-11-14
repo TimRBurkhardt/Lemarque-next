@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight, X } from "lucide-react";
 import { CONTACT_HREF } from "@/lib/brand";
 import styles from "./malum-minimal-collection.module.css";
 import { AtelierHeader } from "./atelier-header";
+import { AtelierImage } from "./atelier-image";
+import system from "./atelier-system.module.css";
 
 const pieces = [
   { id: "otodus", slug: "malum-otodus-cashmere-coat", name: "Otodus Cashmere Coat", category: "Outerwear", alt: "Black Otodus cashmere coat with silver shark-tooth fasteners, isolated in a still front view", shape: "long" },
@@ -33,21 +35,57 @@ const galleries = pieces.map((piece, index) => [
 // Reading order follows the garments’ on-screen positions on mobile.
 const mobileEntranceOrder = [2, 0, 1, 3, 4];
 
-function PieceImage({ index, view = 0, sizes, priority = false }: { index: number; view?: number; sizes: string; priority?: boolean }) {
-  return <>{galleries[index].map((photo, photoIndex) => <Image key={photo.src} src={photo.src} alt={photoIndex === view ? photo.alt : ""} aria-hidden={photoIndex !== view} className={styles.photo} data-active={photoIndex === view} fill sizes={sizes} priority={priority && photoIndex === view} unoptimized />)}</>;
+function subscribeGallery(callback: () => void) {
+  window.addEventListener("hashchange", callback);
+  window.addEventListener("popstate", callback);
+  window.addEventListener("malum:gallery", callback);
+  return () => {
+    window.removeEventListener("hashchange", callback);
+    window.removeEventListener("popstate", callback);
+    window.removeEventListener("malum:gallery", callback);
+  };
+}
+
+function readGallery(hash: string) {
+  const params = new URLSearchParams(hash.slice(1));
+  const index = pieces.findIndex(piece => piece.slug === params.get("piece"));
+  const requested = Number(params.get("view") ?? 1) - 1;
+  return { index: index < 0 ? null : index, view: index < 0 || !Number.isInteger(requested) ? 0 : Math.max(0, Math.min(galleries[index].length - 1, requested)) };
+}
+
+function writeGallery(index: number | null, view = 0, replace = false) {
+  const url = new URL(window.location.href);
+  url.hash = index === null ? "" : new URLSearchParams({ piece: pieces[index].slug, view: String(view + 1) }).toString();
+  const state = { ...window.history.state, malumGalleryFromOverview: replace ? window.history.state?.malumGalleryFromOverview : index !== null };
+  window.history[replace ? "replaceState" : "pushState"](state, "", url);
+  window.dispatchEvent(new Event("malum:gallery"));
+}
+
+function closeGallery() {
+  if (window.history.state?.malumGalleryFromOverview) window.history.back();
+  else writeGallery(null, 0, true);
+}
+
+function PieceImage({ index, view = 0, sizes, priority = false, retryable = false }: { index: number; view?: number; sizes: string; priority?: boolean; retryable?: boolean }) {
+  const photo = galleries[index][view];
+  return <AtelierImage key={photo.src} src={photo.src} alt={photo.alt} className={styles.photo} fill sizes={sizes} priority={priority} retryable={retryable} unoptimized />;
 }
 
 function ImageControls({ index, view, onChange, className = "", previewOnHover = false }: { index: number; view: number; onChange: (view: number) => void; className?: string; previewOnHover?: boolean }) {
   const piece = pieces[index];
   return (
-    <div className={`${styles.imageControls} ${className}`} role="group" aria-label={`${piece.name} images`}>
+    <div className={`${styles.imageControls} ${className}`} role="group" aria-label={`${piece.name} images`} onKeyDown={event => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      onChange(Math.max(0, Math.min(galleries[index].length - 1, view + (event.key === "ArrowRight" ? 1 : -1))));
+    }}>
       <div className={styles.viewStatus}><span>{galleries[index][view].label}</span><span aria-live="polite">0{view + 1} / 0{galleries[index].length}</span></div>
       <div className={styles.thumbnails}>
         {galleries[index].map((photo, photoIndex) => (
           <button key={photo.src} onPointerEnter={event => {
             if (previewOnHover && event.pointerType === "mouse") onChange(photoIndex);
           }} onClick={() => onChange(photoIndex)} aria-label={`Show ${photo.label.toLowerCase()} of ${piece.name}`} aria-pressed={photoIndex === view}>
-            <Image src={photo.src} alt="" width={48} height={60} unoptimized />
+            <Image src={photo.src} alt="" width={60} height={76} sizes="72px" />
           </button>
         ))}
       </div>
@@ -56,8 +94,11 @@ function ImageControls({ index, view, onChange, className = "", previewOnHover =
 }
 
 export function MalumMinimalCollection() {
-  const [selected, setSelected] = useState<number | null>(null);
-  const [views, setViews] = useState([0, 0, 0, 0, 0]);
+  const hash = useSyncExternalStore(subscribeGallery, () => window.location.hash, () => "");
+  const gallery = readGallery(hash);
+  const selected = gallery.index;
+  const [previewViews, setViews] = useState([0, 0, 0, 0, 0]);
+  const views = previewViews.map((view, index) => index === selected ? gallery.view : view);
   const [entering, setEntering] = useState(true);
   const [preview, setPreview] = useState<number | null>(null);
   const [touchPreview, setTouchPreview] = useState(false);
@@ -66,6 +107,13 @@ export function MalumMinimalCollection() {
   const heading = useRef<HTMLHeadingElement>(null);
   const pieceButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const piece = selected === null ? null : pieces[selected];
+  const previousSelection = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (selected !== null) heading.current?.focus({ preventScroll: true });
+    else if (previousSelection.current !== null) pieceButtons.current[previousSelection.current]?.focus({ preventScroll: true });
+    previousSelection.current = selected;
+  }, [selected]);
 
   const stopIntro = useCallback(() => setEntering(false), []);
   const cancelPreviewClose = useCallback(() => {
@@ -76,9 +124,11 @@ export function MalumMinimalCollection() {
   useEffect(() => {
     const dismissPreview = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      if (document.querySelector(":popover-open")) return;
       cancelPreviewClose();
       setPreview(null);
       setTouchPreview(false);
+      if (readGallery(window.location.hash).index !== null) closeGallery();
     };
     document.addEventListener("keydown", dismissPreview);
     return () => {
@@ -119,16 +169,18 @@ export function MalumMinimalCollection() {
     stopIntro();
     setPreview(null);
     setTouchPreview(false);
-    setSelected(index);
-    requestAnimationFrame(() => heading.current?.focus({ preventScroll: true }));
+    writeGallery(index, views[index], selected !== null);
   }
   function showCollection() {
     cancelPreviewClose();
-    const previous = selected;
-    setSelected(null);
-    if (previous !== null) requestAnimationFrame(() => pieceButtons.current[previous]?.focus({ preventScroll: true }));
+    setPreview(null);
+    setTouchPreview(false);
+    closeGallery();
   }
-  function changeView(index: number, view: number) { setViews(current => current.map((value, i) => i === index ? view : value)); }
+  function changeView(index: number, view: number) {
+    setViews(current => current.map((value, i) => i === index ? view : value));
+    if (selected === index) writeGallery(index, view, true);
+  }
   function activatePiece(index: number) {
     cancelPreviewClose();
     if (inputMode.current === "touch" || inputMode.current === "pen") {
@@ -142,13 +194,13 @@ export function MalumMinimalCollection() {
   }
 
   return (
-    <div className={styles.page} onPointerDownCapture={event => { inputMode.current = event.pointerType; stopIntro(); }} onKeyDownCapture={() => {
+    <div className={`${system.surface} ${styles.page}`} onPointerDownCapture={event => { inputMode.current = event.pointerType; stopIntro(); }} onKeyDownCapture={() => {
       cancelPreviewClose();
       inputMode.current = "keyboard";
       stopIntro();
     }}>
       <a className={styles.skip} href="#malum-pieces">Skip to pieces</a>
-      <AtelierHeader onCollection={showCollection} />
+      <AtelierHeader onCollection={selected !== null ? showCollection : undefined} />
 
       <main>
         <section className={`${styles.stage} ${piece ? styles.detailStage : ""}`} aria-labelledby="malum-title">
@@ -158,8 +210,8 @@ export function MalumMinimalCollection() {
             <h1 id="malum-title" ref={heading} tabIndex={-1}>{piece?.name ?? "MALUM"}</h1>
             {piece && <p className={styles.specification}>{piece.category}</p>}
             {selected !== null && piece && <>
-              <ImageControls index={selected} view={views[selected]} onChange={view => changeView(selected, view)} className={styles.detailControls} />
-              <Link className={styles.pieceLink} href={`/product/${piece.slug}`}>View piece <ArrowUpRight size={16} aria-hidden="true" /></Link>
+              <ImageControls index={selected} view={views[selected]} onChange={view => changeView(selected, view)} className={styles.detailControls} previewOnHover />
+              <Link className={styles.pieceLink} href={`/product/${piece.slug}`}>Details &amp; inquiry <ArrowUpRight size={16} aria-hidden="true" /></Link>
               <div className={styles.pieceNavigation}>
                 <button disabled={selected === 0} onClick={() => select(selected - 1)} aria-label="Previous piece"><ArrowLeft size={16} /></button>
                 <span aria-live="polite">0{selected + 1} <span>/ 05</span></span>
@@ -186,14 +238,17 @@ export function MalumMinimalCollection() {
                   </button>
                   <div className={styles.hoverPanel}>
                     <p className={styles.caption}><span aria-hidden="true">0{index + 1}</span><span>{item.name}</span></p>
-                    <ImageControls index={index} view={views[index]} onChange={view => changeView(index, view)} previewOnHover />
+                    {preview === index && <>
+                      {galleries[index].map(photo => <link key={photo.src} rel="preload" as="image" href={photo.src} />)}
+                      <ImageControls index={index} view={views[index]} onChange={view => changeView(index, view)} previewOnHover />
+                    </>}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
             <div id="malum-pieces" className={styles.detail}>
-              <div className={styles.detailImage}><PieceImage index={selected} view={views[selected]} sizes="(max-width: 767px) 80vw, 45vw" priority /></div>
+              <div className={styles.detailImage}><PieceImage index={selected} view={views[selected]} sizes="(max-width: 767px) 80vw, 45vw" priority retryable /></div>
             </div>
           )}
 
@@ -201,12 +256,12 @@ export function MalumMinimalCollection() {
             {touchPreview && preview !== null && <>
               <div className={styles.touchPreviewHeading}><p>{pieces[preview].name}</p><button aria-label="Close image preview" onClick={() => { setPreview(null); setTouchPreview(false); }}><X size={14} /></button></div>
               <ImageControls index={preview} view={views[preview]} onChange={view => changeView(preview, view)} />
-              <button className={styles.openPreview} onClick={() => select(preview)}>Explore piece <ArrowUpRight size={14} /></button>
+              <button className={styles.openPreview} onClick={() => select(preview)}>Open gallery <ArrowUpRight size={16} aria-hidden="true" /></button>
             </>}
           </div>}
 
-          {!piece && <div className={styles.discover}>
-            <button onClick={() => select(0)}>Explore pieces <ArrowRight size={16} aria-hidden="true" /></button>
+          {!piece && !(touchPreview && preview !== null) && <div className={styles.discover}>
+            <Link href="/collection/malum/shop">All pieces <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>}
         </section>
 

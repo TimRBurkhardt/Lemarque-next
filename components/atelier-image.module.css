@@ -1,0 +1,2 @@
+.fallback { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8px; color: #626262; font-family: "Malum Minimal", sans-serif; font-size: .75rem; line-height: 1.5; text-transform: none; text-align: center; }
+.fallback button { min-height: 44px; padding: 0 12px; color: #171717; text-decoration: underline; text-underline-offset: 4px; }
