@@ -6,6 +6,19 @@ import { CollectionDetailClient } from "../collection-detail-client";
 export const metadata: Metadata = {
   title: "MALUM — Classic",
   description: "The original MALUM collection experience by LEMARQUE.",
+  alternates: { canonical: "/collection/malum/classic" },
+  openGraph: {
+    type: "website",
+    siteName: "LEMARQUE",
+    url: "/collection/malum/classic",
+    title: "MALUM — Classic | LEMARQUE",
+    description: "The original MALUM collection experience by LEMARQUE.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MALUM — Classic | LEMARQUE",
+    description: "The original MALUM collection experience by LEMARQUE.",
+  },
   robots: { index: false, follow: true },
 };
 

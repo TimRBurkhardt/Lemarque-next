@@ -1,3 +1,4 @@
+import { renderMinimalShare } from "@/lib/sharing";
 import { getCollection } from "@/lib/collections";
 import {
   OG_CONTENT_TYPE,
@@ -22,6 +23,8 @@ export default async function Image({ params }: Props) {
   if (!collection) {
     return fallbackOgCard();
   }
+
+  if (slug === "malum") return renderMinimalShare();
 
   const imageSrc = await loadOgImageSrc(collection.heroImage.src);
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BRAND_TAGLINE } from "@/lib/brand";
+import { MALUM_DESCRIPTION } from "@/lib/sharing";
 import { collections, getCollection } from "@/lib/collections";
 import { CollectionDetailClient } from "./collection-detail-client";
 import { MalumMinimalCollection } from "@/components/malum-minimal-collection";
@@ -23,22 +23,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "Collection Not Found" };
   }
 
-  // Matches the root layout OG title so the brand line carries into every
-  // shared collection link, not just the homepage. The share image itself
-  // is generated per collection by opengraph-image.tsx.
-  const shareTitle = `${collection.name} | LEMARQUE | ${BRAND_TAGLINE}`;
+  const shareTitle = `${collection.name} | LEMARQUE`;
+  const description = slug === "malum" ? MALUM_DESCRIPTION : collection.description;
+  const url = `/collection/${slug}`;
 
   return {
-    title: `${collection.name} | ${collection.season} ${collection.year}`,
-    description: slug === "malum" ? "MALUM by LEMARQUE. Sculptural outerwear, tailoring and gowns. Discover five selected pieces from the collection." : collection.description,
+    title: collection.name,
+    alternates: { canonical: url },
+    description,
     openGraph: {
+      type: "website",
+      siteName: "LEMARQUE",
+      url,
       title: shareTitle,
-      description: collection.description,
+      description,
     },
     twitter: {
       card: "summary_large_image",
       title: shareTitle,
-      description: collection.description,
+      description,
     },
   };
 }

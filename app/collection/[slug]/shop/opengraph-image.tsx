@@ -1,3 +1,4 @@
+import { renderMinimalShare } from "@/lib/sharing";
 import { getCollection, getShopLooks } from "@/lib/collections";
 import {
   OG_CONTENT_TYPE,
@@ -22,6 +23,8 @@ export default async function Image({ params }: Props) {
   if (!collection) {
     return fallbackOgCard();
   }
+
+  if (slug === "malum") return renderMinimalShare();
 
   const firstLook = getShopLooks(collection)[0];
   const imageSrc = await loadOgImageSrc(

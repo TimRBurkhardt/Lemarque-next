@@ -29,9 +29,13 @@ export async function generateMetadata({
   }
 
   return {
+    alternates: { canonical: `/collection/${slug}/shop` },
     title: `Shop ${collection.name}`,
     description: `Browse every look and piece from the ${collection.name} collection.`,
     openGraph: {
+      type: "website",
+      siteName: "LEMARQUE",
+      url: `/collection/${slug}/shop`,
       title: `Shop ${collection.name} | LEMARQUE`,
       description: `Browse every look and piece from the ${collection.name} collection.`,
     },
