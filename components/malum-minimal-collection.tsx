@@ -62,11 +62,38 @@ export function MalumMinimalCollection() {
   const [preview, setPreview] = useState<number | null>(null);
   const [touchPreview, setTouchPreview] = useState(false);
   const inputMode = useRef("mouse");
+  const previewCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const pieceButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const piece = selected === null ? null : pieces[selected];
 
   const stopIntro = useCallback(() => setEntering(false), []);
+  const cancelPreviewClose = useCallback(() => {
+    if (previewCloseTimer.current !== null) clearTimeout(previewCloseTimer.current);
+    previewCloseTimer.current = null;
+  }, []);
+
+  useEffect(() => {
+    const dismissPreview = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      cancelPreviewClose();
+      setPreview(null);
+      setTouchPreview(false);
+    };
+    document.addEventListener("keydown", dismissPreview);
+    return () => {
+      document.removeEventListener("keydown", dismissPreview);
+      cancelPreviewClose();
+    };
+  }, [cancelPreviewClose]);
+
+  function schedulePreviewClose(index: number) {
+    cancelPreviewClose();
+    previewCloseTimer.current = setTimeout(() => {
+      setPreview(current => current === index ? null : current);
+      previewCloseTimer.current = null;
+    }, 250);
+  }
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -88,6 +115,7 @@ export function MalumMinimalCollection() {
   }, [stopIntro]);
 
   function select(index: number) {
+    cancelPreviewClose();
     stopIntro();
     setPreview(null);
     setTouchPreview(false);
@@ -95,6 +123,7 @@ export function MalumMinimalCollection() {
     requestAnimationFrame(() => heading.current?.focus({ preventScroll: true }));
   }
   function showCollection() {
+    cancelPreviewClose();
     const previous = selected;
     setSelected(null);
     if (previous !== null) requestAnimationFrame(() => pieceButtons.current[previous]?.focus({ preventScroll: true }));
@@ -112,17 +141,17 @@ export function MalumMinimalCollection() {
   }
 
   return (
-    <div className={styles.page} onPointerDownCapture={event => { inputMode.current = event.pointerType; stopIntro(); }} onKeyDownCapture={event => {
+    <div className={styles.page} onPointerDownCapture={event => { inputMode.current = event.pointerType; cancelPreviewClose(); stopIntro(); }} onKeyDownCapture={() => {
+      cancelPreviewClose();
       inputMode.current = "keyboard";
       stopIntro();
-      if (event.key === "Escape") { setPreview(null); setTouchPreview(false); }
     }}>
       <a className={styles.skip} href="#malum-pieces">Skip to pieces</a>
       <AtelierHeader onCollection={showCollection} />
 
       <main>
         <section className={`${styles.stage} ${piece ? styles.detailStage : ""}`} aria-labelledby="malum-title">
-          <div className={`${styles.information} ${piece ? styles.pieceInformation : ""}`}>
+          <div className={`${styles.information} ${piece ? styles.pieceInformation : styles.overviewInformation}`}>
             {piece && <button className={styles.back} onClick={showCollection}><ArrowLeft size={12} aria-hidden="true" /> Back to collection</button>}
             {piece && <p className={styles.eyebrow}>{`MALUM / 0${selected! + 1}`}</p>}
             <h1 id="malum-title" ref={heading} tabIndex={-1}>{piece?.name ?? "MALUM"}</h1>
@@ -143,8 +172,9 @@ export function MalumMinimalCollection() {
               {pieces.map((item, index) => (
                 <div key={item.id} data-piece={item.id} data-preview-active={preview === index} data-touch-preview={touchPreview} style={{ "--entrance-order": pieces.length - 1 - index, "--entrance-mobile-order": mobileEntranceOrder[index], "--piece-shift": preview === null || preview === index ? 0 : Math.sign(index - preview) } as CSSProperties} className={`${styles.piece} ${item.shape === "short" ? styles.short : ""}`} onPointerEnter={event => {
                   stopIntro();
-                  if (event.pointerType === "mouse") { setPreview(index); setTouchPreview(false); }
-                }} onPointerLeave={event => { if (event.pointerType === "mouse") setPreview(null); }} onFocusCapture={() => {
+                  if (event.pointerType === "mouse") { cancelPreviewClose(); setPreview(index); setTouchPreview(false); }
+                }} onPointerLeave={event => { if (event.pointerType === "mouse") schedulePreviewClose(index); }} onFocusCapture={() => {
+                  cancelPreviewClose();
                   stopIntro();
                   if (inputMode.current === "keyboard") { setPreview(index); setTouchPreview(window.matchMedia("(max-width: 767px), (hover: none)").matches); }
                 }} onBlurCapture={event => {

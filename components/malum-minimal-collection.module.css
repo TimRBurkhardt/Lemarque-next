@@ -12,6 +12,8 @@
 .information { position: absolute; top: 144px; right: var(--gutter); z-index: 3; width: var(--column); text-align: left; }
 .eyebrow { margin-bottom: 16px; font-size: 9px; letter-spacing: .12em; color: #666; }
 .information h1 { font-size: 22px; font-weight: 500; line-height: 1.1; letter-spacing: .035em; outline: none; }
+.information.overviewInformation { left: 50%; right: auto; width: auto; transform: translateX(-50%); text-align: center; }
+.overviewInformation h1 { font-family: Arial, Helvetica, sans-serif; font-weight: 400; letter-spacing: .08em; }
 .specification { margin-top: 16px; font-size: 11px; text-transform: none; color: #666; }
 .pieceInformation { top: 50%; right: var(--gutter); width: calc(2 * var(--column) + var(--grid-gap)); max-width: 380px; transform: translateY(-50%); text-align: left; }
 .pieceInformation h1 { font-size: clamp(27px, 2.8vw, 40px); font-weight: 500; text-transform: none; letter-spacing: -.045em; line-height: 1.12; }
