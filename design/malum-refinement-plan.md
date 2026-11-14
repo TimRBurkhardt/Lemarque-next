@@ -46,3 +46,5 @@ Interaktion geprüft: Desktop 1440 px, kurze Fenster 1440×760 und 1024×768; Mo
 Die Anfrage-Adresse wurde auf der öffentlichen Kontaktseite verifiziert. Getestet wurde ausschließlich der erzeugte Mailto-Link mit Produktname und Produkt-URL. Keine Nachricht wurde geöffnet oder gesendet.
 
 Zusätzlich lädt die Übersicht nur ihre fünf aktiven Bilder; weitere Ansichten werden beim Auswählen eines Stücks vorgeladen. Die Miniaturen nutzen optimierte Bildgrößen. Auf sehr kurzen Desktopfenstern bleibt reguläres Scrollen möglich.
+
+Live-Nachprüfung: Galerie-Link, Anfrage und Classic-URL funktionieren auf der Produktionsdomain. Ein zusätzlicher 320×568-Test deckte die beibehaltene Scrollposition nach „Open gallery“ auf; die Galerie beginnt jetzt bei jedem Stückwechsel oben am Kleidungsbild. Der Wechsel einzelner Fotoansichten verändert die Scrollposition nicht.

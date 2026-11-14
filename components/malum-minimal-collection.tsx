@@ -110,7 +110,10 @@ export function MalumMinimalCollection() {
   const previousSelection = useRef<number | null>(null);
 
   useEffect(() => {
-    if (selected !== null) heading.current?.focus({ preventScroll: true });
+    if (selected !== null) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      heading.current?.focus({ preventScroll: true });
+    }
     else if (previousSelection.current !== null) pieceButtons.current[previousSelection.current]?.focus({ preventScroll: true });
     previousSelection.current = selected;
   }, [selected]);
