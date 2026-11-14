@@ -15,3 +15,5 @@ Titles, descriptions, canonical links and Open Graph URLs are specific to the co
 `public/fonts/montserrat-regular.ttf` is a static weight-400 instance of the existing Montserrat WOFF2, converted with fontTools for ImageResponse compatibility. The existing `Montserrat-OFL.txt` license applies. No external font or image request is needed for the light previews.
 
 Validation: production build and TypeScript, ESLint on changed source files, rendered metadata inspection, PNG dimensions, visual checks for landscape/square/story and long product names. All 21 product preview endpoints and collection/product/classic Twitter endpoints checked.
+
+Deployment: explicitly include Sharp's libvips shared library in Next output tracing. Without it, Vercel's runtime cannot load Sharp even though the build and local image generation succeed. Verify the dynamic OG/Twitter endpoints on the production alias after deployment.

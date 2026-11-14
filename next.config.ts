@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Sharp loads libvips via dlopen; Next's automatic tracing misses the
+  // shared library in Vercel functions even though it exists during build.
+  outputFileTracingIncludes: {
+    "/*": ["./node_modules/@img/sharp-libvips-*/lib/**/*"],
+  },
   images: {
     remotePatterns: [
       {
