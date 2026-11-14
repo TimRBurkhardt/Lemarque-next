@@ -130,6 +130,7 @@ export function MalumMinimalCollection() {
   }
   function changeView(index: number, view: number) { setViews(current => current.map((value, i) => i === index ? view : value)); }
   function activatePiece(index: number) {
+    cancelPreviewClose();
     if (inputMode.current === "touch" || inputMode.current === "pen") {
       if (preview !== index) {
         setPreview(index);
@@ -141,7 +142,7 @@ export function MalumMinimalCollection() {
   }
 
   return (
-    <div className={styles.page} onPointerDownCapture={event => { inputMode.current = event.pointerType; cancelPreviewClose(); stopIntro(); }} onKeyDownCapture={() => {
+    <div className={styles.page} onPointerDownCapture={event => { inputMode.current = event.pointerType; stopIntro(); }} onKeyDownCapture={() => {
       cancelPreviewClose();
       inputMode.current = "keyboard";
       stopIntro();
