@@ -126,7 +126,7 @@ export function MalumMinimalCollection() {
             {piece && <button className={styles.back} onClick={showCollection}><ArrowLeft size={12} aria-hidden="true" /> Back to collection</button>}
             {piece && <p className={styles.eyebrow}>{`MALUM / 0${selected! + 1}`}</p>}
             <h1 id="malum-title" ref={heading} tabIndex={-1}>{piece?.name ?? "MALUM"}</h1>
-            <p className={styles.specification}>{piece?.category ?? "Collection"}</p>
+            {piece && <p className={styles.specification}>{piece.category}</p>}
             {selected !== null && piece && <>
               <ImageControls index={selected} view={views[selected]} onChange={view => changeView(selected, view)} className={styles.detailControls} />
               <Link className={styles.pieceLink} href={`/product/${piece.slug}`}>View piece <ArrowUpRight size={16} aria-hidden="true" /></Link>
@@ -175,14 +175,12 @@ export function MalumMinimalCollection() {
           </div>}
 
           {!piece && <div className={styles.discover}>
-            <div className={styles.signatureGroup}><span className={styles.collectionSignature}>Manufactured attire.</span></div>
             <button onClick={() => select(0)}>Explore pieces <ArrowRight size={16} aria-hidden="true" /></button>
           </div>}
         </section>
 
         <section className={styles.statement} aria-label="About MALUM">
-          <h2>Made to stand apart.</h2>
-          <p>Sculptural outerwear, precise tailoring and gowns cut like armor. Discover the MALUM collection.</p>
+          <p>Sculptural outerwear, tailoring and eveningwear.</p>
         </section>
       </main>
 
