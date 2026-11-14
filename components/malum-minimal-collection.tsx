@@ -141,7 +141,7 @@ export function MalumMinimalCollection() {
           {selected === null ? (
             <div id="malum-pieces" className={styles.lineup} data-entering={entering} data-previewing={preview !== null} role="group" aria-label="Five selected MALUM pieces">
               {pieces.map((item, index) => (
-                <div key={item.id} data-piece={item.id} data-preview-active={preview === index} data-touch-preview={touchPreview} style={{ "--entrance-order": pieces.length - 1 - index, "--entrance-mobile-order": mobileEntranceOrder[index], "--piece-shift": preview === null || preview === index ? "0px" : `${Math.sign(index - preview) * 28}px` } as CSSProperties} className={`${styles.piece} ${item.shape === "short" ? styles.short : ""}`} onPointerEnter={event => {
+                <div key={item.id} data-piece={item.id} data-preview-active={preview === index} data-touch-preview={touchPreview} style={{ "--entrance-order": pieces.length - 1 - index, "--entrance-mobile-order": mobileEntranceOrder[index], "--piece-shift": preview === null || preview === index ? 0 : Math.sign(index - preview) } as CSSProperties} className={`${styles.piece} ${item.shape === "short" ? styles.short : ""}`} onPointerEnter={event => {
                   stopIntro();
                   if (event.pointerType === "mouse") { setPreview(index); setTouchPreview(false); }
                 }} onPointerLeave={event => { if (event.pointerType === "mouse") setPreview(null); }} onFocusCapture={() => {
@@ -154,7 +154,7 @@ export function MalumMinimalCollection() {
                     <span className={styles.image}><PieceImage index={index} view={views[index]} sizes="(max-width: 767px) 28vw, 220px" priority /></span>
                   </button>
                   <div className={styles.hoverPanel}>
-                    <p className={styles.caption}>{item.name}</p>
+                    <p className={styles.caption}><span aria-hidden="true">0{index + 1}</span><span>{item.name}</span></p>
                     <ImageControls index={index} view={views[index]} onChange={view => changeView(index, view)} previewOnHover />
                   </div>
                 </div>
