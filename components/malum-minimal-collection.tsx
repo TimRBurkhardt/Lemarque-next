@@ -79,7 +79,7 @@ function ImageControls({ index, view, onChange, className = "", previewOnHover =
       event.preventDefault();
       onChange(Math.max(0, Math.min(galleries[index].length - 1, view + (event.key === "ArrowRight" ? 1 : -1))));
     }}>
-      <div className={styles.viewStatus}><span>{galleries[index][view].label}</span><span aria-live="polite">0{view + 1} / 0{galleries[index].length}</span></div>
+      <span className={styles.srOnly} aria-live="polite">{galleries[index][view].label}</span>
       <div className={styles.thumbnails}>
         {galleries[index].map((photo, photoIndex) => (
           <button key={photo.src} onPointerEnter={event => {
@@ -209,7 +209,7 @@ export function MalumMinimalCollection() {
         <section className={`${styles.stage} ${piece ? styles.detailStage : ""}`} aria-labelledby="malum-title">
           <div className={`${styles.information} ${piece ? styles.pieceInformation : styles.overviewInformation}`}>
             {piece && <button className={styles.back} onClick={showCollection}><ArrowLeft size={12} aria-hidden="true" /> Back to collection</button>}
-            {piece && <p className={styles.eyebrow}>{`MALUM / 0${selected! + 1}`}</p>}
+            {piece && <p className={styles.eyebrow}>MALUM</p>}
             <h1 id="malum-title" ref={heading} tabIndex={-1}>{piece?.name ?? "MALUM"}</h1>
             {piece && <p className={styles.specification}>{piece.category}</p>}
             {selected !== null && piece && <>
@@ -217,7 +217,7 @@ export function MalumMinimalCollection() {
               <Link className={styles.pieceLink} href={`/product/${piece.slug}`}>Details &amp; inquiry <ArrowUpRight size={16} aria-hidden="true" /></Link>
               <div className={styles.pieceNavigation}>
                 <button disabled={selected === 0} onClick={() => select(selected - 1)} aria-label="Previous piece"><ArrowLeft size={16} /></button>
-                <span aria-live="polite">0{selected + 1} <span>/ 05</span></span>
+                <span className={styles.srOnly} aria-live="polite">{piece.name}</span>
                 <button disabled={selected === pieces.length - 1} onClick={() => select(selected + 1)} aria-label="Next piece"><ArrowRight size={16} /></button>
               </div>
             </>}
@@ -237,10 +237,10 @@ export function MalumMinimalCollection() {
                   if (inputMode.current === "keyboard" && !event.currentTarget.contains(event.relatedTarget)) setPreview(null);
                 }}>
                   <button ref={element => { pieceButtons.current[index] = element; }} className={styles.pieceTrigger} onClick={() => activatePiece(index)} aria-label={`Explore ${item.name}`} aria-expanded={preview === index}>
-                    <span className={styles.image}><PieceImage index={index} view={views[index]} sizes="(max-width: 767px) 28vw, 220px" priority /></span>
+                    <span className={styles.imagePosition}><span className={styles.image}><PieceImage index={index} view={views[index]} sizes="(max-width: 767px) 28vw, 220px" priority /></span></span>
                   </button>
                   <div className={styles.hoverPanel}>
-                    <p className={styles.caption}><span aria-hidden="true">0{index + 1}</span><span>{item.name}</span></p>
+                    <p className={styles.caption}>{item.name}</p>
                     {preview === index && <>
                       {galleries[index].map(photo => <link key={photo.src} rel="preload" as="image" href={photo.src} />)}
                       <ImageControls index={index} view={views[index]} onChange={view => changeView(index, view)} previewOnHover />
