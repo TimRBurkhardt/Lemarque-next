@@ -33,10 +33,11 @@
 .imageControls { width: 200px; }
 .viewStatus { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; font-size: 8px; color: #606060; font-variant-numeric: tabular-nums; }
 .thumbnails { display: flex; gap: 8px; }
-.thumbnails button { display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 1; min-width: 0; height: 60px; padding: 3px; border: 1px solid transparent; background: transparent; opacity: .55; }
-.thumbnails button[aria-pressed="true"] { border-bottom-color: #373737; opacity: 1; }
+.thumbnails button { display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 1; min-width: 0; height: 60px; padding: 4px; border: 0; background: transparent; opacity: .5; transition: opacity 180ms ease-out; }
+.thumbnails button[aria-pressed="true"] { opacity: 1; }
 .thumbnails button:hover, .thumbnails button:focus-visible { opacity: 1; }
-.thumbnails img { display: block; width: 100%; height: 100%; min-height: 0; max-height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+.thumbnails img { display: block; width: 100%; height: 100%; min-height: 0; max-height: 100%; object-fit: contain; mix-blend-mode: multiply; transform: scale(.9); transition: transform 180ms cubic-bezier(.16,1,.3,1); }
+.thumbnails button[aria-pressed="true"] img { transform: scale(1); }
 .detailControls { position: static; width: 100%; margin-top: 32px; padding: 20px 0 0; border-top: 1px solid #d7d7d7; }
 .detailControls .thumbnails { gap: 12px; }
 .detailControls .thumbnails button { flex: 1; min-width: 0; max-width: 60px; height: 76px; }
