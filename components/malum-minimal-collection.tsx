@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight, X } from "lucide-react";
@@ -31,9 +31,6 @@ const galleries = pieces.map((piece, index) => [
   ...additionalViews[index].map(view => ({ src: `/collections/malum/products/${piece.slug}/${view.file}.webp`, label: view.label, alt: `${piece.name}, ${view.label.toLowerCase()}` })),
   ...(["otodus", "latex", "suit"].includes(piece.id) ? [{ src: `/collections/malum/campaign/white-v21/${piece.id}-side.webp`, label: "Side · garment", alt: `${piece.name}, isolated three-quarter side view` }] : []),
 ]);
-
-// Reading order follows the garments’ on-screen positions on mobile.
-const mobileEntranceOrder = [2, 0, 1, 3, 4];
 
 function subscribeGallery(callback: () => void) {
   window.addEventListener("hashchange", callback);
@@ -108,13 +105,20 @@ export function MalumMinimalCollection() {
   const pieceButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const piece = selected === null ? null : pieces[selected];
   const previousSelection = useRef<number | null>(null);
+  const overviewPosition = useRef<{ top: number; index: number } | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (selected !== null) {
       window.scrollTo({ top: 0, behavior: "instant" });
       heading.current?.focus({ preventScroll: true });
     }
-    else if (previousSelection.current !== null) pieceButtons.current[previousSelection.current]?.focus({ preventScroll: true });
+    else if (previousSelection.current !== null) {
+      const position = overviewPosition.current;
+      const trigger = pieceButtons.current[position?.index ?? previousSelection.current];
+      if (position) window.scrollTo({ top: position.top, behavior: "instant" });
+      else trigger?.scrollIntoView({ block: "center", behavior: "instant" });
+      trigger?.focus({ preventScroll: true });
+    }
     previousSelection.current = selected;
   }, [selected]);
 
@@ -170,6 +174,7 @@ export function MalumMinimalCollection() {
   function select(index: number) {
     cancelPreviewClose();
     stopIntro();
+    if (selected === null) overviewPosition.current = { top: window.scrollY, index };
     setPreview(null);
     setTouchPreview(false);
     writeGallery(index, views[index], selected !== null);
@@ -194,6 +199,12 @@ export function MalumMinimalCollection() {
       }
     }
     select(index);
+  }
+  function dismissPreview(index: number) {
+    cancelPreviewClose();
+    setPreview(null);
+    setTouchPreview(false);
+    pieceButtons.current[index]?.focus({ preventScroll: true });
   }
 
   return (
@@ -226,25 +237,31 @@ export function MalumMinimalCollection() {
           {selected === null ? (
             <div id="malum-pieces" className={styles.lineup} data-entering={entering} data-previewing={preview !== null} role="group" aria-label="Five selected MALUM pieces">
               {pieces.map((item, index) => (
-                <div key={item.id} data-piece={item.id} data-preview-active={preview === index} data-touch-preview={touchPreview} style={{ "--entrance-order": pieces.length - 1 - index, "--entrance-mobile-order": mobileEntranceOrder[index], "--piece-shift": preview === null || preview === index ? 0 : Math.sign(index - preview) } as CSSProperties} className={`${styles.piece} ${item.shape === "short" ? styles.short : ""}`} onPointerEnter={event => {
+                <div key={item.id} data-piece={item.id} data-preview-active={preview === index} data-touch-preview={touchPreview} style={{ "--entrance-order": pieces.length - 1 - index, "--piece-shift": preview === null || preview === index ? 0 : Math.sign(index - preview) } as CSSProperties} className={`${styles.piece} ${item.shape === "short" ? styles.short : ""}`} onPointerEnter={event => {
                   stopIntro();
                   if (event.pointerType === "mouse") { cancelPreviewClose(); setPreview(index); setTouchPreview(false); }
-                }} onPointerLeave={event => { if (event.pointerType === "mouse") schedulePreviewClose(index); }} onFocusCapture={() => {
+                }} onPointerLeave={event => { if (event.pointerType === "mouse") schedulePreviewClose(index); }} onFocusCapture={event => {
                   cancelPreviewClose();
                   stopIntro();
-                  if (inputMode.current === "keyboard") { setPreview(index); setTouchPreview(window.matchMedia("(max-width: 767px), (hover: none)").matches); }
+                  if (inputMode.current === "keyboard" && !event.currentTarget.contains(event.relatedTarget)) { setPreview(index); setTouchPreview(window.matchMedia("(max-width: 767px), (hover: none)").matches); }
                 }} onBlurCapture={event => {
                   if (inputMode.current === "keyboard" && !event.currentTarget.contains(event.relatedTarget)) setPreview(null);
                 }}>
-                  <button ref={element => { pieceButtons.current[index] = element; }} className={styles.pieceTrigger} onClick={() => activatePiece(index)} aria-label={`Explore ${item.name}`} aria-expanded={preview === index}>
-                    <span className={styles.imagePosition}><span className={styles.image}><PieceImage index={index} view={views[index]} sizes="(max-width: 767px) 28vw, 220px" priority /></span></span>
+                  <button ref={element => { pieceButtons.current[index] = element; }} className={styles.pieceTrigger} onClick={() => activatePiece(index)} aria-label={`Explore ${item.name}`} aria-expanded={preview === index} aria-controls={`preview-${item.id}`}>
+                    <span className={styles.imagePosition}><span className={styles.image}><PieceImage index={index} view={views[index]} sizes="(max-width: 767px) 90vw, 220px" priority /></span></span>
                   </button>
                   <div className={styles.hoverPanel}>
-                    <p className={styles.caption}>{item.name}</p>
-                    {preview === index && <>
-                      {galleries[index].map(photo => <link key={photo.src} rel="preload" as="image" href={photo.src} />)}
-                      <ImageControls index={index} view={views[index]} onChange={view => changeView(index, view)} previewOnHover />
-                    </>}
+                    <div className={styles.captionRow}>
+                      <p className={styles.caption}>{item.name}</p>
+                      {preview === index && <button className={styles.previewClose} aria-label={`Close image preview of ${item.name}`} onClick={() => dismissPreview(index)}><X size={14} aria-hidden="true" /></button>}
+                    </div>
+                    <div id={`preview-${item.id}`} className={styles.previewTools}>
+                      {preview === index && <>
+                        {galleries[index].map(photo => <link key={photo.src} rel="preload" as="image" href={photo.src} />)}
+                        <ImageControls index={index} view={views[index]} onChange={view => changeView(index, view)} previewOnHover />
+                        <button className={styles.openPreview} onClick={() => select(index)}>Open gallery <ArrowUpRight size={16} aria-hidden="true" /></button>
+                      </>}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -255,15 +272,7 @@ export function MalumMinimalCollection() {
             </div>
           )}
 
-          {selected === null && <div className={styles.touchPreview} data-visible={touchPreview && preview !== null} aria-live="polite">
-            {touchPreview && preview !== null && <>
-              <div className={styles.touchPreviewHeading}><p>{pieces[preview].name}</p><button aria-label="Close image preview" onClick={() => { setPreview(null); setTouchPreview(false); }}><X size={14} /></button></div>
-              <ImageControls index={preview} view={views[preview]} onChange={view => changeView(preview, view)} />
-              <button className={styles.openPreview} onClick={() => select(preview)}>Open gallery <ArrowUpRight size={16} aria-hidden="true" /></button>
-            </>}
-          </div>}
-
-          {!piece && !(touchPreview && preview !== null) && <div className={styles.discover}>
+          {!piece && <div className={styles.discover}>
             <Link href="/collection/malum/shop">All pieces <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>}
         </section>

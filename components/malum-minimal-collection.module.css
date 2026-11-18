@@ -30,6 +30,9 @@
 .hoverPanel::before { content: ""; position: absolute; bottom: 100%; left: 0; right: 0; height: calc(clamp(96px, 12vh, 128px) + 16px); }
 .short .hoverPanel { margin-top: -64px; }
 .caption { margin-bottom: 12px; font-size: var(--text-label); line-height: 1.4; text-align: left; text-transform: none; }
+.captionRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.previewClose { display: none; place-items: center; width: 44px; height: 44px; flex-shrink: 0; }
+.piece[data-touch-preview="true"] .previewClose { display: grid; }
 .hoverPanel .imageControls { width: 100%; }
 .imageControls { width: 224px; }
 .thumbnails { display: flex; gap: 8px; mix-blend-mode: multiply; }
@@ -47,16 +50,10 @@
 /* Explicit preview state prevents pointer clicks leaving a sticky focus hover. */
 .piece[data-preview-active="true"] { z-index: 2; }
 .piece[data-preview-active="true"] .image { transform: scale(1.9); }
-.piece[data-preview-active="true"][data-touch-preview="false"] .hoverPanel { visibility: visible; opacity: 1; pointer-events: auto; transform: translate(var(--panel-shift), 0); }
+.piece[data-preview-active="true"] .hoverPanel { visibility: visible; opacity: 1; pointer-events: auto; transform: translate(var(--panel-shift), 0); }
 .lineup[data-previewing="true"] .piece:not([data-preview-active="true"]) .image { opacity: .78; }
-.touchPreview { display: none; }
-.touchPreview[data-visible="true"] { display: block; position: absolute; bottom: 88px; left: 50%; transform: translateX(-50%); width: 260px; }
-.touchPreviewHeading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
-.touchPreviewHeading p { font-size: var(--text-label); text-transform: none; }
-.touchPreviewHeading button { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; }
-.touchPreview .imageControls { width: 100%; }
-.touchPreview .thumbnails button { height: 76px; }
-.openPreview { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; margin-top: 12px; border-bottom: 1px solid #171717; font-size: var(--text-ui); }
+.openPreview { display: none; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; margin-top: 8px; font-size: var(--text-ui); }
+.piece[data-touch-preview="true"] .openPreview { display: flex; }
 .discover { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 32px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--grid-gap); }
 .discover a { grid-column: 5; width: 100%; display: inline-flex; align-items: center; justify-content: space-between; gap: 36px; min-height: 44px; font-size: var(--text-ui); letter-spacing: .06em; }
 .discover a:hover { color: #666; }
@@ -90,24 +87,29 @@
 }
 @media (max-width: 767px) {
   .page { --gutter: var(--atelier-gutter); --grid-gap: var(--atelier-gap); }
-  .stage { min-height: 100svh; height: auto; padding: 244px 20px 100px; }
+  .stage { min-height: 100svh; height: auto; padding: 176px var(--gutter) 32px; }
   .information { right: var(--gutter); top: 112px; width: calc((100% - 2 * var(--gutter) - var(--grid-gap)) / 2); }
   .information h1 { font-size: 1.125rem; }
   .eyebrow { font-size: var(--text-caption); margin-bottom: 10px; }
   .specification { font-size: var(--text-ui); margin-top: 10px; }
-  .lineup { position: relative; width: min(380px, 100%); height: 320px; margin: 0 auto; left: auto; right: auto; top: auto; transform: none; display: block; }
-  .piece { position: absolute; width: 32%; height: 44%; transform: translate(-50%, -50%); }
+  .lineup { position: relative; width: min(520px, 100%); height: auto; margin: 0 auto; left: auto; right: auto; top: auto; transform: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .piece { position: relative; width: 100%; height: auto; padding-bottom: 128px; scroll-margin-top: 24px; }
+  .pieceTrigger { position: relative; inset: auto; display: block; height: clamp(280px, 48svh, 480px); }
   .imagePosition { transform: none; }
-  .piece[data-preview-active="true"] .image { transform: scale(1.3); }
-  .piece:nth-child(1) { left: 50%; top: 16%; }
-  .piece:nth-child(2) { left: 85%; top: 45%; }
-  .piece:nth-child(3) { left: 72%; top: 88%; }
-  .piece:nth-child(4) { left: 28%; top: 88%; }
-  .piece:nth-child(5) { left: 15%; top: 45%; }
+  .piece[data-preview-active="true"] .image { transform: scale(1.04); }
+  .lineup[data-previewing="true"] .piece:not([data-preview-active="true"]) .image { opacity: 1; }
   .short .imagePosition { inset: 8% 0; }
-  .hoverPanel { display: none; }
-  .touchPreview[data-visible="true"] { display: block; position: relative; bottom: auto; left: auto; transform: none; width: min(280px, 100%); min-height: 212px; margin: 48px auto 0; }
-  .discover { left: var(--gutter); right: var(--gutter); bottom: 24px; grid-template-columns: 1fr 1fr; gap: var(--grid-gap); }
+  .piece .hoverPanel, .piece[data-preview-active="true"] .hoverPanel { position: relative; inset: auto; width: 100%; padding: 0; margin: 16px 0 0; transform: none; opacity: 1; visibility: visible; pointer-events: auto; transition: none; }
+  .hoverPanel::before { display: none; }
+  .captionRow { min-height: 44px; }
+  .caption { margin: 0; }
+  .previewClose { display: grid; }
+  /* Reserved space keeps every garment in place when its picker opens. */
+  .previewTools { position: absolute; top: 100%; left: 0; right: 0; padding-top: 8px; }
+  .previewTools .thumbnails { max-width: 280px; gap: 12px; }
+  .previewTools .thumbnails button { flex: 0 1 60px; height: 68px; }
+  .openPreview { display: flex; }
+  .discover { position: static; margin-top: 16px; grid-template-columns: 1fr 1fr; gap: var(--grid-gap); }
   .discover a { grid-column: 2; }
   .discover a { gap: 20px; font-size: var(--text-ui); }
   .detailStage { height: auto; display: flex; flex-direction: column; gap: 20px; padding: 96px 24px 40px; }
@@ -125,7 +127,6 @@
   .footer > span { grid-column: 1; grid-row: 2; text-align: left; font-size: var(--text-caption); }
   .footer a { min-height: 44px; }
 }
-@media (hover: none) { .hoverPanel { display: none; } }
 @media (prefers-reduced-motion: reduce) { .piece .imagePosition, .piece .image, .piece[data-preview-active="true"] .image { transform: none; } .page *, .page *::before, .page *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
 
 .photo { animation: photoReveal 180ms ease-out; }
@@ -137,6 +138,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 @media (max-width: 767px) {
-  .lineup[data-entering="true"] .image { animation-delay: calc(var(--entrance-mobile-order) * 90ms); }
+  .lineup[data-entering="true"] .image { animation: none; }
+  .lineup[data-entering="true"] .piece:first-child .image { animation: garmentArrival 600ms cubic-bezier(.22,1,.36,1) backwards; }
 }
 @media (prefers-reduced-motion: reduce) { .photo { transition: none; } }
