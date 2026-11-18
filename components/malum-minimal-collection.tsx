@@ -8,6 +8,7 @@ import { CONTACT_HREF } from "@/lib/brand";
 import styles from "./malum-minimal-collection.module.css";
 import { AtelierHeader } from "./atelier-header";
 import { AtelierImage } from "./atelier-image";
+import { MalumWallPiece } from "./malum-wall-piece";
 import system from "./atelier-system.module.css";
 
 const pieces = [
@@ -27,7 +28,7 @@ const additionalViews = [
 ];
 
 const galleries = pieces.map((piece, index) => [
-  { src: `/collections/malum/campaign/wall-v1/${piece.id}.webp`, label: "Garment", alt: `${piece.name} hanging naturally on a dark walnut hanger, with a ruby-red ornamental wall hook against a white wall` },
+  { src: `/collections/malum/campaign/detached-v2/${piece.id}.webp`, label: "Garment", alt: `${piece.name} hanging naturally on a dark walnut hanger with ruby-red ornamental hardware` },
   ...additionalViews[index].map(view => ({ src: `/collections/malum/products/${piece.slug}/${view.file}.webp`, label: view.label, alt: `${piece.name}, ${view.label.toLowerCase()}` })),
 ]);
 
@@ -64,6 +65,7 @@ function closeGallery() {
 
 function PieceImage({ index, view = 0, sizes, priority = false, retryable = false }: { index: number; view?: number; sizes: string; priority?: boolean; retryable?: boolean }) {
   const photo = galleries[index][view];
+  if (view === 0) return <MalumWallPiece src={photo.src} alt={photo.alt} sizes={sizes} priority={priority} retryable={retryable} />;
   return <AtelierImage key={photo.src} src={photo.src} alt={photo.alt} className={styles.photo} fill sizes={sizes} priority={priority} retryable={retryable} unoptimized />;
 }
 
@@ -98,6 +100,7 @@ export function MalumMinimalCollection() {
   const [entering, setEntering] = useState(true);
   const [preview, setPreview] = useState<number | null>(null);
   const [touchPreview, setTouchPreview] = useState(false);
+  const [mousePreview, setMousePreview] = useState(false);
   const inputMode = useRef("mouse");
   const previewCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -224,6 +227,7 @@ export function MalumMinimalCollection() {
     <div className={`${system.surface} ${styles.page}`} onPointerDownCapture={event => { inputMode.current = event.pointerType; stopIntro(); }} onKeyDownCapture={() => {
       cancelPreviewClose();
       inputMode.current = "keyboard";
+      setMousePreview(false);
       stopIntro();
     }}>
       <a className={styles.skip} href="#malum-pieces">Skip to pieces</a>
@@ -252,7 +256,7 @@ export function MalumMinimalCollection() {
               {pieces.map((item, index) => (
                 <div key={item.id} data-piece={item.id} data-preview-active={preview === index} data-touch-preview={touchPreview} style={{ "--entrance-order": pieces.length - 1 - index, "--piece-shift": preview === null || preview === index ? 0 : Math.sign(index - preview) } as CSSProperties} className={`${styles.piece} ${item.shape === "short" ? styles.short : ""}`} onPointerEnter={event => {
                   stopIntro();
-                  if (event.pointerType === "mouse" && !window.matchMedia("(max-width: 767px)").matches) { cancelPreviewClose(); setPreview(index); setTouchPreview(false); }
+                  if (event.pointerType === "mouse" && window.matchMedia("(min-width: 768px) and (hover: hover) and (pointer: fine)").matches) { inputMode.current = "mouse"; setMousePreview(true); cancelPreviewClose(); setPreview(index); setTouchPreview(false); }
                 }} onPointerLeave={event => { if (event.pointerType === "mouse" && !window.matchMedia("(max-width: 767px)").matches) schedulePreviewClose(index); }} onFocusCapture={event => {
                   cancelPreviewClose();
                   stopIntro();
@@ -261,7 +265,9 @@ export function MalumMinimalCollection() {
                   if (inputMode.current === "keyboard" && !event.currentTarget.contains(event.relatedTarget)) setPreview(null);
                 }}>
                   <button ref={element => { pieceButtons.current[index] = element; }} className={styles.pieceTrigger} onClick={() => activatePiece(index)} aria-label={`Explore ${item.name}`} aria-expanded={preview === index} aria-controls={`preview-${item.id}`}>
-                    <span className={styles.imagePosition}><span className={styles.image}><PieceImage index={index} view={views[index]} sizes="(max-width: 767px) 76vw, 220px" priority /></span></span>
+                    <span className={styles.imagePosition}><span className={styles.image}>
+                      <MalumWallPiece src={galleries[index][views[index]].src} alt={galleries[index][views[index]].alt} sizes="(max-width: 767px) 76vw, 400px" priority interactive cutout={views[index] === 0} active={preview === index && !touchPreview && mousePreview} />
+                    </span></span>
                   </button>
                   <div className={styles.hoverPanel}>
                     <div className={styles.captionRow}>

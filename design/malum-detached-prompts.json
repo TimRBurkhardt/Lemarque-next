@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-18",
+  "method": "built-in image_gen",
+  "purpose": "Shadowless alpha cutouts for browser-rendered light, shadows and spring hover.",
+  "prompts": [
+    {
+      "id": "otodus",
+      "prompt": "Use case: background-extraction. Produce a CLEAN SHADOWLESS RGBA CUTOUT of the exact otodus garment, walnut clothes hanger, metal hook, and gold/ruby/black/pearl ornament in the supplied image. This is an asset for a real-time website where the browser renders all external light and cast shadows.\nCRITICAL EDIT: Remove absolutely ALL wall/background pixels, external cast shadows, ambient shadow haze, glow, colored halo, edge halos, and faint translucent backdrop. Outside the actual solid objects there must be zero alpha, including between the hook, hanger, straps and ornament. No shadow beneath or behind the objects. Do not preserve the existing soft shadow. Keep natural shading WITHIN the garment and hardware, including black fabric folds, seams, glossy material highlights and walnut grain. Preserve the exact garment design, folds, pose, silhouette, ornament design and positions. No body, no mannequin, no scene, no wall, no floor. Do not paint a checkerboard.\nRetain the exact portrait 2:3 framing and full installation, top ornament to bottom hem. All edges clean with only normal antialiasing, no soft glow. Make no style or composition changes. Final: the same precise garment + hanger + ornament, truly isolated with no shadows, ready to cast a dynamic shadow in a browser.",
+      "source": "public/collections/malum/campaign/wall-v1/otodus.webp",
+      "output": "public/collections/malum/campaign/detached-v2/otodus.webp",
+      "generatedFile": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-7c4450e0-63cb-4940-90a9-8b662d1411c9.png"
+    },
+    {
+      "id": "latex",
+      "prompt": "Use case: background-extraction. Produce a CLEAN SHADOWLESS RGBA CUTOUT of the exact latex garment, walnut clothes hanger, metal hook, and gold/ruby/black/pearl ornament in the supplied image. This is an asset for a real-time website where the browser renders all external light and cast shadows.\nCRITICAL EDIT: Remove absolutely ALL wall/background pixels, external cast shadows, ambient shadow haze, glow, colored halo, edge halos, and faint translucent backdrop. Outside the actual solid objects there must be zero alpha, including between the hook, hanger, straps and ornament. No shadow beneath or behind the objects. Do not preserve the existing soft shadow. Keep natural shading WITHIN the garment and hardware, including black fabric folds, seams, glossy material highlights and walnut grain. Preserve the exact garment design, folds, pose, silhouette, ornament design and positions. No body, no mannequin, no scene, no wall, no floor. Do not paint a checkerboard.\nRetain the exact portrait 2:3 framing and full installation, top ornament to bottom hem. All edges clean with only normal antialiasing, no soft glow. Make no style or composition changes. Final: the same precise garment + hanger + ornament, truly isolated with no shadows, ready to cast a dynamic shadow in a browser.",
+      "source": "public/collections/malum/campaign/wall-v1/latex.webp",
+      "output": "public/collections/malum/campaign/detached-v2/latex.webp",
+      "generatedFile": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-528105d2-3316-4700-bdbe-89e98543451a.png"
+    },
+    {
+      "id": "bomber",
+      "prompt": "Use case: background-extraction. Produce a CLEAN SHADOWLESS RGBA CUTOUT of the exact bomber garment, walnut clothes hanger, metal hook, and gold/ruby/black/pearl ornament in the supplied image. This is an asset for a real-time website where the browser renders all external light and cast shadows.\nCRITICAL EDIT: Remove absolutely ALL wall/background pixels, external cast shadows, ambient shadow haze, glow, colored halo, edge halos, and faint translucent backdrop. Outside the actual solid objects there must be zero alpha, including between the hook, hanger, straps and ornament. No shadow beneath or behind the objects. Do not preserve the existing soft shadow. Keep natural shading WITHIN the garment and hardware, including black fabric folds, seams, glossy material highlights and walnut grain. Preserve the exact garment design, folds, pose, silhouette, ornament design and positions. No body, no mannequin, no scene, no wall, no floor. Do not paint a checkerboard.\nRetain the exact portrait 2:3 framing and full installation, top ornament to bottom hem. All edges clean with only normal antialiasing, no soft glow. Make no style or composition changes. Final: the same precise garment + hanger + ornament, truly isolated with no shadows, ready to cast a dynamic shadow in a browser.",
+      "source": "public/collections/malum/campaign/wall-v1/bomber.webp",
+      "output": "public/collections/malum/campaign/detached-v2/bomber.webp",
+      "generatedFile": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-cb3186db-b642-4f78-a89d-6599d781eaf2.png"
+    },
+    {
+      "id": "suit",
+      "prompt": "Use case: background-extraction. Produce a CLEAN SHADOWLESS RGBA CUTOUT of the exact suit garment, walnut clothes hanger, metal hook, and gold/ruby/black/pearl ornament in the supplied image. This is an asset for a real-time website where the browser renders all external light and cast shadows.\nCRITICAL EDIT: Remove absolutely ALL wall/background pixels, external cast shadows, ambient shadow haze, glow, colored halo, edge halos, and faint translucent backdrop. Outside the actual solid objects there must be zero alpha, including between the hook, hanger, straps and ornament. No shadow beneath or behind the objects. Do not preserve the existing soft shadow. Keep natural shading WITHIN the garment and hardware, including black fabric folds, seams, glossy material highlights and walnut grain. Preserve the exact garment design, folds, pose, silhouette, ornament design and positions. No body, no mannequin, no scene, no wall, no floor. Do not paint a checkerboard.\nRetain the exact portrait 2:3 framing and full installation, top ornament to bottom hem. All edges clean with only normal antialiasing, no soft glow. Make no style or composition changes. Final: the same precise garment + hanger + ornament, truly isolated with no shadows, ready to cast a dynamic shadow in a browser.",
+      "source": "public/collections/malum/campaign/wall-v1/suit.webp",
+      "output": "public/collections/malum/campaign/detached-v2/suit.webp",
+      "generatedFile": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-b8ec1251-8d3c-4354-9a54-63252406ee89.png"
+    },
+    {
+      "id": "siren",
+      "prompt": "Use case: background-extraction. Produce a CLEAN SHADOWLESS RGBA CUTOUT of the exact siren garment, walnut clothes hanger, metal hook, and gold/ruby/black/pearl ornament in the supplied image. This is an asset for a real-time website where the browser renders all external light and cast shadows.\nCRITICAL EDIT: Remove absolutely ALL wall/background pixels, external cast shadows, ambient shadow haze, glow, colored halo, edge halos, and faint translucent backdrop. Outside the actual solid objects there must be zero alpha, including between the hook, hanger, straps and ornament. No shadow beneath or behind the objects. Do not preserve the existing soft shadow. Keep natural shading WITHIN the garment and hardware, including black fabric folds, seams, glossy material highlights and walnut grain. Preserve the exact garment design, folds, pose, silhouette, ornament design and positions. No body, no mannequin, no scene, no wall, no floor. Do not paint a checkerboard.\nRetain the exact portrait 2:3 framing and full installation, top ornament to bottom hem. All edges clean with only normal antialiasing, no soft glow. Make no style or composition changes. Final: the same precise garment + hanger + ornament, truly isolated with no shadows, ready to cast a dynamic shadow in a browser.",
+      "source": "public/collections/malum/campaign/wall-v1/siren.webp",
+      "output": "public/collections/malum/campaign/detached-v2/siren.webp",
+      "generatedFile": "/Users/timrayburkhardt/.codex/generated_images/01a1d5ad-41fb-7192-a159-08665110a44b/exec-69057eb6-1cfb-41dd-8488-83c5fde1e60f.png"
+    }
+  ]
+}
