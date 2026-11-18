@@ -22,3 +22,16 @@ Five clean 1024 × 1536 RGBA cutouts are saved as WebP in `public/collections/ma
 ## Validation
 
 Production build and ESLint pass. Final interaction checks and visual review cover bounded pointer movement, reversible spring return, thumbnail handoff, mobile two-tap selection, native scrolling, keyboard interaction and Reduced Motion.
+
+## Distance, touch and gallery refinement
+
+The creator requested more noticeable magnetic capture and docking, a mobile touch equivalent, and a cleaner single-image opening.
+
+- Mouse attraction now uses a 16 px center capture zone and a saturating `tanh` response outside it. Maximum targets are ±36 px horizontally, ±22 px vertically and ±2° rotation. All springs retain duration 0.5 s / bounce 0.2; return starts immediately on actual pointer exit. The picker remains available for 120 ms near an edge, or closes immediately beyond 80 px. Hovering its controls recenters the attraction.
+- Touch presses add a very small lift; a horizontal pull passes an 8 px intent threshold, follows with elastic resistance (up to 26 px) and returns on release. Drag release suppresses its synthetic click. A subsequent intentional touch starts normally. Vertical intent is handed to native scrolling, with `touch-action: pan-y pinch-zoom`; cancellation and blur release the piece. Two taps still open the large view.
+- The large view accepts horizontal swipes between photographs. Its title is smaller, the back control precedes the image on mobile, and redundant MALUM labeling and divider lines were removed.
+- Every image now has a real 2:3 frame, preserving photograph proportions with `object-fit: contain`. Supported browsers use a 350 ms native view transition for the selected image; other browsers switch directly. Reduced Motion and keyboard opening skip the transition. Wall shadows are hidden during the image's journey and return at its destination, preventing a detached shadow from appearing early.
+- Preview photo choices are separate from the URL-backed large view. Closing a preview, switching hover targets, scrolling, Escape, the app's Back control and native browser Back restore the cutouts in the wall overview.
+- Native image dragging and mobile image callouts are disabled on the interactive photographs.
+
+Verification: desktop attraction, center capture, docking, thumbnail reset, shared-image open/close, native Back, preserved selected view, portrait proportions and Reduced Motion passed. Native touch-event checks at 320 × 568 and 390 × 844 passed horizontal pull/release, no accidental click, two taps, large-image swipe and uninterrupted vertical scrolling. Desktop and mobile layouts were also inspected in the user's browser.

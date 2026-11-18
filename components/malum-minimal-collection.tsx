@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { flushSync } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight, X } from "lucide-react";
 import { CONTACT_HREF } from "@/lib/brand";
 import styles from "./malum-minimal-collection.module.css";
 import { AtelierHeader } from "./atelier-header";
-import { AtelierImage } from "./atelier-image";
 import { MalumWallPiece } from "./malum-wall-piece";
 import system from "./atelier-system.module.css";
 
@@ -65,8 +65,7 @@ function closeGallery() {
 
 function PieceImage({ index, view = 0, sizes, priority = false, retryable = false }: { index: number; view?: number; sizes: string; priority?: boolean; retryable?: boolean }) {
   const photo = galleries[index][view];
-  if (view === 0) return <MalumWallPiece src={photo.src} alt={photo.alt} sizes={sizes} priority={priority} retryable={retryable} />;
-  return <AtelierImage key={photo.src} src={photo.src} alt={photo.alt} className={styles.photo} fill sizes={sizes} priority={priority} retryable={retryable} unoptimized />;
+  return <MalumWallPiece src={photo.src} alt={photo.alt} sizes={sizes} priority={priority} retryable={retryable} cutout={view === 0} transitionName="malum-piece" />;
 }
 
 function ImageControls({ index, view, onChange, className = "", previewOnHover = false }: { index: number; view: number; onChange: (view: number) => void; className?: string; previewOnHover?: boolean }) {
@@ -101,6 +100,9 @@ export function MalumMinimalCollection() {
   const [preview, setPreview] = useState<number | null>(null);
   const [touchPreview, setTouchPreview] = useState(false);
   const [mousePreview, setMousePreview] = useState(false);
+  const [transitionPiece, setTransitionPiece] = useState<number | null>(null);
+  const viewTransition = useRef<ViewTransition | null>(null);
+  const detailTouch = useRef<{ x: number; y: number } | null>(null);
   const inputMode = useRef("mouse");
   const previewCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -117,6 +119,7 @@ export function MalumMinimalCollection() {
       if (Math.abs(window.scrollY - origin) > 72) {
         setPreview(null);
         setTouchPreview(false);
+        setViews([0, 0, 0, 0, 0]);
       }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -151,6 +154,7 @@ export function MalumMinimalCollection() {
       cancelPreviewClose();
       setPreview(null);
       setTouchPreview(false);
+      setViews([0, 0, 0, 0, 0]);
       if (readGallery(window.location.hash).index !== null) closeGallery();
     };
     document.addEventListener("keydown", dismissPreview);
@@ -160,12 +164,13 @@ export function MalumMinimalCollection() {
     };
   }, [cancelPreviewClose]);
 
-  function schedulePreviewClose(index: number) {
+  function schedulePreviewClose(index: number, farAway = false) {
     cancelPreviewClose();
     previewCloseTimer.current = setTimeout(() => {
       setPreview(current => current === index ? null : current);
+      setViews(current => current.map((view, i) => i === index ? 0 : view));
       previewCloseTimer.current = null;
-    }, 250);
+    }, farAway ? 0 : 120);
   }
 
   useEffect(() => {
@@ -187,23 +192,53 @@ export function MalumMinimalCollection() {
     };
   }, [stopIntro]);
 
+  function transitionGallery(update: () => void | Promise<void>) {
+    viewTransition.current?.skipTransition();
+    if (!document.startViewTransition || window.matchMedia("(prefers-reduced-motion: reduce)").matches || inputMode.current === "keyboard") { void update(); return; }
+    document.documentElement.setAttribute("data-malum-transition", "");
+    const transition = document.startViewTransition(update);
+    viewTransition.current = transition;
+    void transition.finished.catch(() => {}).finally(() => {
+      if (viewTransition.current === transition) {
+        viewTransition.current = null;
+        document.documentElement.removeAttribute("data-malum-transition");
+      }
+    });
+  }
   function select(index: number) {
     cancelPreviewClose();
     stopIntro();
-    if (selected === null) overviewPosition.current = { top: window.scrollY, index };
-    setPreview(null);
-    setTouchPreview(false);
-    writeGallery(index, views[index], selected !== null);
+    const view = views[index];
+    if (selected === null) {
+      overviewPosition.current = { top: window.scrollY, index };
+      flushSync(() => setTransitionPiece(index));
+    }
+    const open = () => flushSync(() => {
+      setPreview(null);
+      setTouchPreview(false);
+      setViews([0, 0, 0, 0, 0]);
+      writeGallery(index, view, selected !== null);
+    });
+    if (selected === null) transitionGallery(open);
+    else open();
   }
   function showCollection() {
     cancelPreviewClose();
     setPreview(null);
     setTouchPreview(false);
-    closeGallery();
+    setViews([0, 0, 0, 0, 0]);
+    if (selected !== null) flushSync(() => setTransitionPiece(selected));
+    transitionGallery(() => {
+      if (!window.history.state?.malumGalleryFromOverview) { flushSync(() => writeGallery(null, 0, true)); return; }
+      return new Promise<void>(resolve => {
+        window.addEventListener("popstate", () => { flushSync(() => setPreview(null)); resolve(); }, { once: true });
+        window.history.back();
+      });
+    });
   }
   function changeView(index: number, view: number) {
-    setViews(current => current.map((value, i) => i === index ? view : value));
     if (selected === index) writeGallery(index, view, true);
+    else setViews(current => current.map((value, i) => i === index ? view : value));
   }
   function activatePiece(index: number) {
     cancelPreviewClose();
@@ -220,6 +255,7 @@ export function MalumMinimalCollection() {
     cancelPreviewClose();
     setPreview(null);
     setTouchPreview(false);
+    setViews(current => current.map((view, i) => i === index ? 0 : view));
     pieceButtons.current[index]?.focus({ preventScroll: true });
   }
 
@@ -235,9 +271,8 @@ export function MalumMinimalCollection() {
 
       <main>
         <section className={`${styles.stage} ${piece ? styles.detailStage : ""}`} aria-labelledby="malum-title">
+          {piece && <button className={`${styles.back} ${styles.detailBack}`} onClick={showCollection}><ArrowLeft size={12} aria-hidden="true" /> Back to collection</button>}
           <div className={`${styles.information} ${piece ? styles.pieceInformation : styles.overviewInformation}`}>
-            {piece && <button className={styles.back} onClick={showCollection}><ArrowLeft size={12} aria-hidden="true" /> Back to collection</button>}
-            {piece && <p className={styles.eyebrow}>MALUM</p>}
             <h1 id="malum-title" ref={heading} tabIndex={-1}>{piece?.name ?? "MALUM"}</h1>
             {piece && <p className={styles.specification}>{piece.category}</p>}
             {selected !== null && piece && <>
@@ -256,8 +291,14 @@ export function MalumMinimalCollection() {
               {pieces.map((item, index) => (
                 <div key={item.id} data-piece={item.id} data-preview-active={preview === index} data-touch-preview={touchPreview} style={{ "--entrance-order": pieces.length - 1 - index, "--piece-shift": preview === null || preview === index ? 0 : Math.sign(index - preview) } as CSSProperties} className={`${styles.piece} ${item.shape === "short" ? styles.short : ""}`} onPointerEnter={event => {
                   stopIntro();
-                  if (event.pointerType === "mouse" && window.matchMedia("(min-width: 768px) and (hover: hover) and (pointer: fine)").matches) { inputMode.current = "mouse"; setMousePreview(true); cancelPreviewClose(); setPreview(index); setTouchPreview(false); }
-                }} onPointerLeave={event => { if (event.pointerType === "mouse" && !window.matchMedia("(max-width: 767px)").matches) schedulePreviewClose(index); }} onFocusCapture={event => {
+                  if (event.pointerType === "mouse" && window.matchMedia("(min-width: 768px) and (hover: hover) and (pointer: fine)").matches) { inputMode.current = "mouse"; setMousePreview(true); cancelPreviewClose(); setViews(current => current.map((view, i) => i === index ? view : 0)); setPreview(index); setTouchPreview(false); }
+                }} onPointerLeave={event => {
+                  if (event.pointerType === "mouse" && !window.matchMedia("(max-width: 767px)").matches) {
+                    const box = event.currentTarget.getBoundingClientRect();
+                    const distance = Math.hypot(Math.max(box.left - event.clientX, 0, event.clientX - box.right), Math.max(box.top - event.clientY, 0, event.clientY - box.bottom));
+                    schedulePreviewClose(index, distance > 80);
+                  }
+                }} onFocusCapture={event => {
                   cancelPreviewClose();
                   stopIntro();
                   if (inputMode.current === "keyboard" && !event.currentTarget.contains(event.relatedTarget)) { setPreview(index); setTouchPreview(window.matchMedia("(max-width: 767px), (hover: none)").matches); }
@@ -266,7 +307,7 @@ export function MalumMinimalCollection() {
                 }}>
                   <button ref={element => { pieceButtons.current[index] = element; }} className={styles.pieceTrigger} onClick={() => activatePiece(index)} aria-label={`Explore ${item.name}`} aria-expanded={preview === index} aria-controls={`preview-${item.id}`}>
                     <span className={styles.imagePosition}><span className={styles.image}>
-                      <MalumWallPiece src={galleries[index][views[index]].src} alt={galleries[index][views[index]].alt} sizes="(max-width: 767px) 76vw, 400px" priority interactive cutout={views[index] === 0} active={preview === index && !touchPreview && mousePreview} />
+                      <MalumWallPiece src={galleries[index][views[index]].src} alt={galleries[index][views[index]].alt} sizes="(max-width: 767px) 76vw, 400px" priority interactive cutout={views[index] === 0} active={preview === index && !touchPreview && mousePreview} transitionName={transitionPiece === index ? "malum-piece" : undefined} />
                     </span></span>
                   </button>
                   <div className={styles.hoverPanel}>
@@ -287,7 +328,12 @@ export function MalumMinimalCollection() {
             </div>
           ) : (
             <div id="malum-pieces" className={styles.detail}>
-              <div className={styles.detailImage}><PieceImage index={selected} view={views[selected]} sizes="(max-width: 767px) 80vw, 45vw" priority retryable /></div>
+              <div className={styles.detailImage} onTouchStart={event => { const touch = event.touches[0]; detailTouch.current = { x: touch.clientX, y: touch.clientY }; }} onTouchCancel={() => { detailTouch.current = null; }} onTouchEnd={event => {
+                const start = detailTouch.current; detailTouch.current = null;
+                if (!start) return;
+                const touch = event.changedTouches[0], x = touch.clientX - start.x, y = touch.clientY - start.y;
+                if (Math.abs(x) > 48 && Math.abs(x) > Math.abs(y) * 1.3) changeView(selected, Math.max(0, Math.min(galleries[selected].length - 1, views[selected] + (x < 0 ? 1 : -1))));
+              }}><PieceImage index={selected} view={views[selected]} sizes="(max-width: 767px) 90vw, 55vw" priority retryable /></div>
             </div>
           )}
 
