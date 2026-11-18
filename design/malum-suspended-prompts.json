@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-18",
+  "method": "built-in image_gen",
+  "direction": "Empty, lightly suspended garments; transparent backgrounds; preserve original garment design.",
+  "prompts": [
+    {
+      "id": "otodus"
+    },
+    {
+      "id": "latex"
+    },
+    {
+      "id": "bomber"
+    },
+    {
+      "id": "suit"
+    },
+    {
+      "id": "siren"
+    }
+  ]
+}

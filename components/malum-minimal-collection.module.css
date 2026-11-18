@@ -86,30 +86,36 @@
   .discover { bottom: 16px; }
 }
 @media (max-width: 767px) {
-  .page { --gutter: var(--atelier-gutter); --grid-gap: var(--atelier-gap); }
-  .stage { min-height: 100svh; height: auto; padding: 176px var(--gutter) 32px; }
+  .page { --gutter: var(--atelier-gutter); --grid-gap: var(--atelier-gap); --mobile-piece-height: clamp(280px, 48svh, 480px); }
+  .stage { min-height: 100svh; height: auto; padding: 144px var(--gutter) 32px; }
   .information { right: var(--gutter); top: 112px; width: calc((100% - 2 * var(--gutter) - var(--grid-gap)) / 2); }
   .information h1 { font-size: 1.125rem; }
   .eyebrow { font-size: var(--text-caption); margin-bottom: 10px; }
   .specification { font-size: var(--text-ui); margin-top: 10px; }
-  .lineup { position: relative; width: min(520px, 100%); height: auto; margin: 0 auto; left: auto; right: auto; top: auto; transform: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; }
-  .piece { position: relative; width: 100%; height: auto; padding-bottom: 128px; scroll-margin-top: 24px; }
-  .pieceTrigger { position: relative; inset: auto; display: block; height: clamp(280px, 48svh, 480px); }
+  .lineup { position: relative; width: min(520px, 100%); height: auto; margin: 0 auto; left: auto; right: auto; top: auto; transform: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; mix-blend-mode: multiply; }
+  .piece { position: relative; width: 72%; height: var(--mobile-piece-height); scroll-margin-top: 24px; }
+  .piece + .piece { margin-top: calc(var(--mobile-piece-height) * -.2); }
+  .piece:nth-child(odd) { justify-self: start; left: -8px; }
+  .piece:nth-child(even) { justify-self: end; left: 8px; }
+  .pieceTrigger { position: relative; inset: auto; display: block; height: 100%; }
   .imagePosition { transform: none; }
-  .piece[data-preview-active="true"] .image { transform: scale(1.04); }
+  .piece[data-preview-active="true"] .image { transform: none; }
   .lineup[data-previewing="true"] .piece:not([data-preview-active="true"]) .image { opacity: 1; }
   .short .imagePosition { inset: 8% 0; }
-  .piece .hoverPanel, .piece[data-preview-active="true"] .hoverPanel { position: relative; inset: auto; width: 100%; padding: 0; margin: 16px 0 0; transform: none; opacity: 1; visibility: visible; pointer-events: auto; transition: none; }
+  .piece .hoverPanel, .piece[data-preview-active="true"] .hoverPanel { position: fixed; top: auto; bottom: max(20px, env(safe-area-inset-bottom, 0px)); left: var(--gutter); right: var(--gutter); width: auto; max-width: 520px; padding: 8px 0; margin: 0 auto; background: #fff; transform: none; transition: opacity 180ms ease-out, visibility 180ms; }
+  .piece .hoverPanel { opacity: 0; visibility: hidden; pointer-events: none; }
+  .piece[data-preview-active="true"] .hoverPanel { opacity: 1; visibility: visible; pointer-events: auto; }
+  .piece:nth-child(even) .hoverPanel { left: var(--gutter); right: var(--gutter); }
   .hoverPanel::before { display: none; }
   .captionRow { min-height: 44px; }
   .caption { margin: 0; }
   .previewClose { display: grid; }
-  /* Reserved space keeps every garment in place when its picker opens. */
-  .previewTools { position: absolute; top: 100%; left: 0; right: 0; padding-top: 8px; }
+  /* A quiet picker; selecting a garment never moves or scales it. */
+  .previewTools { position: static; display: grid; grid-template-columns: minmax(0, 1fr) 44px; align-items: center; gap: 12px; padding-top: 4px; }
   .previewTools .thumbnails { max-width: 280px; gap: 12px; }
-  .previewTools .thumbnails button { flex: 0 1 60px; height: 68px; }
-  .openPreview { display: flex; }
-  .discover { position: static; margin-top: 16px; grid-template-columns: 1fr 1fr; gap: var(--grid-gap); }
+  .previewTools .thumbnails button { flex: 0 1 56px; height: 56px; padding: 0; }
+  .openPreview { display: flex; justify-content: center; width: 44px; margin: 0; font-size: 0; }
+  .discover { position: static; margin-top: 64px; grid-template-columns: 1fr 1fr; gap: var(--grid-gap); }
   .discover a { grid-column: 2; }
   .discover a { gap: 20px; font-size: var(--text-ui); }
   .detailStage { height: auto; display: flex; flex-direction: column; gap: 20px; padding: 96px 24px 40px; }

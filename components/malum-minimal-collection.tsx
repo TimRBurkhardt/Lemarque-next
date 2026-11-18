@@ -27,7 +27,7 @@ const additionalViews = [
 ];
 
 const galleries = pieces.map((piece, index) => [
-  { src: `/collections/malum/campaign/white-v18/${piece.id}.webp`, label: "Garment", alt: piece.alt },
+  { src: `/collections/malum/campaign/suspended-v1/${piece.id}.webp`, label: "Garment", alt: `${piece.name}, empty and lightly suspended with relaxed fabric, isolated on a transparent background` },
   ...additionalViews[index].map(view => ({ src: `/collections/malum/products/${piece.slug}/${view.file}.webp`, label: view.label, alt: `${piece.name}, ${view.label.toLowerCase()}` })),
   ...(["otodus", "latex", "suit"].includes(piece.id) ? [{ src: `/collections/malum/campaign/white-v21/${piece.id}-side.webp`, label: "Side · garment", alt: `${piece.name}, isolated three-quarter side view` }] : []),
 ]);
@@ -106,6 +106,20 @@ export function MalumMinimalCollection() {
   const piece = selected === null ? null : pieces[selected];
   const previousSelection = useRef<number | null>(null);
   const overviewPosition = useRef<{ top: number; index: number } | null>(null);
+
+  // Scrolling dismisses the mobile picker without interrupting the page gesture.
+  useEffect(() => {
+    if (preview === null || !window.matchMedia("(max-width: 767px)").matches) return;
+    const origin = window.scrollY;
+    const onScroll = () => {
+      if (Math.abs(window.scrollY - origin) > 72) {
+        setPreview(null);
+        setTouchPreview(false);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [preview]);
 
   useLayoutEffect(() => {
     if (selected !== null) {
@@ -191,7 +205,7 @@ export function MalumMinimalCollection() {
   }
   function activatePiece(index: number) {
     cancelPreviewClose();
-    if (inputMode.current === "touch" || inputMode.current === "pen") {
+    if (inputMode.current === "touch" || inputMode.current === "pen" || window.matchMedia("(max-width: 767px)").matches) {
       if (preview !== index) {
         setPreview(index);
         setTouchPreview(true);
@@ -239,8 +253,8 @@ export function MalumMinimalCollection() {
               {pieces.map((item, index) => (
                 <div key={item.id} data-piece={item.id} data-preview-active={preview === index} data-touch-preview={touchPreview} style={{ "--entrance-order": pieces.length - 1 - index, "--piece-shift": preview === null || preview === index ? 0 : Math.sign(index - preview) } as CSSProperties} className={`${styles.piece} ${item.shape === "short" ? styles.short : ""}`} onPointerEnter={event => {
                   stopIntro();
-                  if (event.pointerType === "mouse") { cancelPreviewClose(); setPreview(index); setTouchPreview(false); }
-                }} onPointerLeave={event => { if (event.pointerType === "mouse") schedulePreviewClose(index); }} onFocusCapture={event => {
+                  if (event.pointerType === "mouse" && !window.matchMedia("(max-width: 767px)").matches) { cancelPreviewClose(); setPreview(index); setTouchPreview(false); }
+                }} onPointerLeave={event => { if (event.pointerType === "mouse" && !window.matchMedia("(max-width: 767px)").matches) schedulePreviewClose(index); }} onFocusCapture={event => {
                   cancelPreviewClose();
                   stopIntro();
                   if (inputMode.current === "keyboard" && !event.currentTarget.contains(event.relatedTarget)) { setPreview(index); setTouchPreview(window.matchMedia("(max-width: 767px), (hover: none)").matches); }
@@ -248,7 +262,7 @@ export function MalumMinimalCollection() {
                   if (inputMode.current === "keyboard" && !event.currentTarget.contains(event.relatedTarget)) setPreview(null);
                 }}>
                   <button ref={element => { pieceButtons.current[index] = element; }} className={styles.pieceTrigger} onClick={() => activatePiece(index)} aria-label={`Explore ${item.name}`} aria-expanded={preview === index} aria-controls={`preview-${item.id}`}>
-                    <span className={styles.imagePosition}><span className={styles.image}><PieceImage index={index} view={views[index]} sizes="(max-width: 767px) 90vw, 220px" priority /></span></span>
+                    <span className={styles.imagePosition}><span className={styles.image}><PieceImage index={index} view={views[index]} sizes="(max-width: 767px) 76vw, 220px" priority /></span></span>
                   </button>
                   <div className={styles.hoverPanel}>
                     <div className={styles.captionRow}>

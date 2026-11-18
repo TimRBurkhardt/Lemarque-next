@@ -4,21 +4,26 @@
 
 ## Direction
 
-Replace the mobile circle with a single column of five large garments. Keep the existing imagery, neutral surface, centered crest and small MALUM title. Align names and image controls to the shared page gutter. Use normal vertical page scrolling.
+Replace the mobile circle with five garments in a staggered vertical sequence: coat upper left, dress lower right, then alternating sides. The image areas overlap vertically by exactly 20%. They occupy 72% of the lineup width and sit 8 px beyond its shared gutters, giving the silhouettes a stronger left/right arrangement. Keep the centered crest, small MALUM heading, light surface and normal page scrolling. Names remain hidden at rest.
 
-The current [Lemaire coats page](https://www.lemaire.fr/collections/men-coats) was inspected at 390 × 844: it uses a two-column product grid with names beneath the images. MALUM is a small, curated collection rather than a broad shopping catalogue; the chosen single-column layout gives its five pieces more visual space. This is our design decision, not a claim that the reference uses this layout.
+The creator rejected the intermediate dark-screen focus and the mobile enlargement/repositioning. Neither is part of this version.
 
 ## Interaction
 
-- First touch selects a piece and reveals its own thumbnails. A second touch opens the existing large collection view. Open gallery is also available as an explicit action.
-- Names remain visible before selection. Picker space is reserved so opening, closing and moving between selections do not change the positions of the garments.
-- Switching thumbnails changes the photograph in place. Only the selected garment scales slightly (1.04) around its own center; adjacent pieces stay fully opaque.
-- Back to collection and browser Back restore the entry scroll position and focus. A directly opened gallery falls back to showing the selected piece on return.
-- Mobile entrance is limited to the first garment. The other four are visible without waiting for a sequence. Reduced Motion removes the entrance and scale.
-- Desktop retains the existing five-column overview, larger hover zoom and 250 ms exit delay. The classic collection route is retained.
+- First tap reveals a compact name and image picker at the bottom. The garment stays at its original position and size; neighboring garments remain fully visible.
+- Second tap opens the existing large collection view. An explicit Open gallery arrow and a close control remain available.
+- Scrolling more than 72 px dismisses the picker without preventing native scrolling. Keyboard focus and Escape remain supported.
+- Returning from the large view restores the entry scroll position and focus. Direct gallery entry falls back to the selected piece on return.
+- Desktop keeps its five-column lineup, centered 1.9 hover scale, neighbor separation and 250 ms exit delay. The classic route is retained.
+
+## Image direction
+
+Five new image edits were made with the built-in image_gen tool, using the existing garment photographs as edit targets. The direction is empty, lightly suspended clothing with relaxed fabric rather than a body-filled ghost mannequin. Signature materials, colors and details are retained as references; the original product photographs remain available for inspection.
+
+All five outputs have genuine alpha transparency. WebP copies preserve alpha and original resolution at quality 94. Source PNGs remain in the generator's output folder. The website uses `public/collections/malum/campaign/suspended-v1/{otodus,latex,bomber,suit,siren}.webp` as the first collection views.
+
+Exact prompts and method: `design/malum-suspended-prompts.json`.
 
 ## Verification
 
-Passed browser verification at 320 × 568, 390 × 844 and 430 × 932: two taps, thumbnail changes, stable layout, close action, overview scroll restoration after both gallery navigation and browser Back, and no horizontal overflow. Additional responsive checks passed at 767 × 900, 768 × 1024 and 844 × 390.
-
-Desktop hover scale, thumbnail hover and delayed exit passed at 1440 × 900. Keyboard opening/closing and restored focus, Escape, Reduced Motion, and native touch scrolling without accidental selection also passed. Production build, component ESLint and whitespace checks passed. These checks use browser device emulation, not physical phones.
+Passed at 320 × 568, 390 × 844 and 430 × 932: measured 20% overlap, alternating horizontal positions, all five new images loading, hidden names, unchanged image bounds and white surface on tap, thumbnails, two taps, close, native scrolling, back-position restoration and no horizontal overflow. Desktop 1.9 hover, absence of mouse-hover activation on mobile widths, keyboard dismissal and Reduced Motion also passed. Component ESLint, production build and whitespace checks passed. These checks use browser device emulation, not physical phones.
