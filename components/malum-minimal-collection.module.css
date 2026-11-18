@@ -87,8 +87,8 @@
 }
 @media (max-width: 767px) {
   .page { --gutter: var(--atelier-gutter); --grid-gap: var(--atelier-gap); --mobile-piece-height: clamp(280px, 48svh, 480px); }
-  .stage { min-height: 100svh; height: auto; padding: 144px var(--gutter) 32px; }
-  .information { right: var(--gutter); top: 112px; width: calc((100% - 2 * var(--gutter) - var(--grid-gap)) / 2); }
+  .stage { min-height: 100svh; height: auto; padding: 112px var(--gutter) 32px; }
+  .information { right: var(--gutter); top: 88px; width: calc((100% - 2 * var(--gutter) - var(--grid-gap)) / 2); }
   .information h1 { font-size: 1.125rem; }
   .eyebrow { font-size: var(--text-caption); margin-bottom: 10px; }
   .specification { font-size: var(--text-ui); margin-top: 10px; }
@@ -97,8 +97,13 @@
   .piece + .piece { margin-top: calc(var(--mobile-piece-height) * -.2); }
   .piece:nth-child(odd) { justify-self: start; left: -8px; }
   .piece:nth-child(even) { justify-self: end; left: 8px; }
+  .piece:nth-child(1) { --mobile-tilt: -5deg; }
+  .piece:nth-child(2) { --mobile-tilt: 6deg; }
+  .piece:nth-child(3) { --mobile-tilt: -6deg; }
+  .piece:nth-child(4) { --mobile-tilt: 5deg; }
+  .piece:nth-child(5) { --mobile-tilt: -4deg; }
   .pieceTrigger { position: relative; inset: auto; display: block; height: 100%; }
-  .imagePosition { transform: none; }
+  .imagePosition { transform: rotate(var(--mobile-tilt)); transform-origin: 50% 50%; transition: none; }
   .piece[data-preview-active="true"] .image { transform: none; }
   .lineup[data-previewing="true"] .piece:not([data-preview-active="true"]) .image { opacity: 1; }
   .short .imagePosition { inset: 8% 0; }
