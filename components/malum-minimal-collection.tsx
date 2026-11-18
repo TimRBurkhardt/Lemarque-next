@@ -164,13 +164,13 @@ export function MalumMinimalCollection() {
     };
   }, [cancelPreviewClose]);
 
-  function schedulePreviewClose(index: number, farAway = false) {
+  function schedulePreviewClose(index: number) {
     cancelPreviewClose();
     previewCloseTimer.current = setTimeout(() => {
       setPreview(current => current === index ? null : current);
       setViews(current => current.map((view, i) => i === index ? 0 : view));
       previewCloseTimer.current = null;
-    }, farAway ? 0 : 120);
+    }, 260);
   }
 
   useEffect(() => {
@@ -294,9 +294,7 @@ export function MalumMinimalCollection() {
                   if (event.pointerType === "mouse" && window.matchMedia("(min-width: 768px) and (hover: hover) and (pointer: fine)").matches) { inputMode.current = "mouse"; setMousePreview(true); cancelPreviewClose(); setViews(current => current.map((view, i) => i === index ? view : 0)); setPreview(index); setTouchPreview(false); }
                 }} onPointerLeave={event => {
                   if (event.pointerType === "mouse" && !window.matchMedia("(max-width: 767px)").matches) {
-                    const box = event.currentTarget.getBoundingClientRect();
-                    const distance = Math.hypot(Math.max(box.left - event.clientX, 0, event.clientX - box.right), Math.max(box.top - event.clientY, 0, event.clientY - box.bottom));
-                    schedulePreviewClose(index, distance > 80);
+                    schedulePreviewClose(index);
                   }
                 }} onFocusCapture={event => {
                   cancelPreviewClose();
@@ -310,7 +308,7 @@ export function MalumMinimalCollection() {
                       <MalumWallPiece src={galleries[index][views[index]].src} alt={galleries[index][views[index]].alt} sizes="(max-width: 767px) 76vw, 400px" priority interactive cutout={views[index] === 0} active={preview === index && !touchPreview && mousePreview} transitionName={transitionPiece === index ? "malum-piece" : undefined} />
                     </span></span>
                   </button>
-                  <div className={styles.hoverPanel}>
+                  <div className={styles.hoverPanel}><div data-piece-picker className={styles.attachedPicker}>
                     <div className={styles.captionRow}>
                       <p className={styles.caption}>{item.name}</p>
                       {preview === index && <button className={styles.previewClose} aria-label={`Close image preview of ${item.name}`} onClick={() => dismissPreview(index)}><X size={14} aria-hidden="true" /></button>}
@@ -322,7 +320,7 @@ export function MalumMinimalCollection() {
                         <button className={styles.openPreview} onClick={() => select(index)}>Open gallery <ArrowUpRight size={16} aria-hidden="true" /></button>
                       </>}
                     </div>
-                  </div>
+                  </div></div>
                 </div>
               ))}
             </div>

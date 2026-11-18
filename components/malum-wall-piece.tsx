@@ -121,7 +121,7 @@ export function MalumWallPiece({ src, alt, sizes, active = false, interactive = 
     const follow = (event: PointerEvent) => {
       if (event.pointerType !== "mouse") return;
       const control = (event.target as HTMLElement).closest("button");
-      if (control && control !== trigger) { releasePointer(); return; }
+      if (control && control !== trigger) return;
       raise();
       if (!cutout) return;
       const x = attraction(event.clientX - bounds.left - bounds.width / 2, bounds.width * .34);
@@ -255,6 +255,30 @@ export function MalumWallPiece({ src, alt, sizes, active = false, interactive = 
   const lightOpacity = useTransform(lift, [0, 1], [0, 0.1]);
   const wallLightOpacity = useTransform(lift, [0, 1], [0, 0.55]);
   const lightTransform = useTransform(() => `translate3d(${pointerX.get() * freedom.get() * .55}%, ${pointerY.get() * freedom.get() * .55}%, 0)`);
+  const frameHeight = useMotionValue(0);
+  // The attachment follows the garment; its light paper-like rotation lags behind.
+  const tagSwing = useSpring(swing, { ...swingSpring, stiffness: frequency ** 2 * .7 });
+  const pickerTransform = useTransform(() => {
+    if (!cutout || !touchEnabled) return "translate(0px, 0px) rotate(0deg)";
+    const lever = frameHeight.get() * (enabled ? .965 : .28);
+    const x = pointerX.get() * freedom.get() - Math.sin(swing.get() * Math.PI / 180) * lever;
+    const y = -lift.get() * 10 + (zoom.get() - 1) * lever;
+    return `translate(${x}px, ${y}px) rotate(${tagSwing.get() * .45}deg)`;
+  });
+  useEffect(() => {
+    if (!interactive) return;
+    const frame = root.current?.firstElementChild;
+    const picker = root.current?.closest("button")?.parentElement?.querySelector<HTMLElement>("[data-piece-picker]");
+    if (!frame || !picker) return;
+    const measure = () => frameHeight.set(frame.clientHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(frame);
+    const paint = () => { picker.style.transform = pickerTransform.get(); };
+    paint();
+    const unsubscribe = pickerTransform.on("change", paint);
+    return () => { observer.disconnect(); unsubscribe(); picker.style.removeProperty("transform"); };
+  }, [interactive, frameHeight, pickerTransform]);
   const mask = { maskImage: `url("${src}")`, WebkitMaskImage: `url("${src}")` } as CSSProperties;
 
   return (
