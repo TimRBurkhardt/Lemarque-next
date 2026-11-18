@@ -48,3 +48,7 @@ The creator requested a distinctly stronger return to the hanging point. This su
 - No idle animation, extra graphics dependency or new UI was added. Reduced Motion, keyboard interaction, window blur and hidden tabs retain their non-flight behavior.
 
 Validation on the production build: ESLint, TypeScript and the full Next.js build pass. Browser checks passed for all five attachment pivots, 200 ms docking, residual pendulum movement, rapid exit/re-entry, tablet/desktop zoom targets and hydration without console errors. Native touch-event checks at 320 and 390 px passed pull/release, no accidental opening, two taps, image swipes and vertical scrolling. A separate re-grab/reversal/multitouch test passed. Gallery view persistence, app/native Back, thumbnail reset and Reduced Motion also pass. Touch was tested with browser emulation, not on physical phone hardware.
+
+## Natural wall lift — latest refinement
+
+Supersedes the centered 1.9 zoom: cutouts now expand gently from the mounting stud (1.22 desktop / 1.16 tablet), with 24 px horizontal and 12 px vertical bounded pull. The mount remains the reference throughout release. Entry has no scale overshoot. Neighbor separation and the thumbnail gap are reduced accordingly. The cast shadow is softer and closer. Touch follows the resisted finger displacement directly, with only 1.035 depth magnification; rotation retains its spring and release still catches in 200 ms. Vertical scrolling and two-tap opening remain.

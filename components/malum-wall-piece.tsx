@@ -6,7 +6,7 @@ import { AtelierImage } from "./atelier-image";
 import styles from "./malum-wall-piece.module.css";
 
 const motionQuery = "(min-width: 768px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
-const liftSpring = { type: "spring", duration: 0.5, bounce: 0.2 } as const;
+const liftSpring = { type: "spring", duration: 0.4, bounce: 0 } as const;
 // Map a 0.4 s response to physical coefficients. In Motion 12.34's useSpring
 // path, duration bypasses the seconds conversion used by animate(). Physical
 // coefficients also preserve velocity when the pointer reverses direction.
@@ -15,11 +15,11 @@ const followSpring = { stiffness: frequency ** 2, damping: 2 * frequency, mass: 
 const swingSpring = { ...followSpring, damping: 2 * .8 * frequency };
 const snap = { type: "tween", duration: 0.2, ease: [0.23, 1, 0.32, 1] } as const;
 
-// The mounting stud sits near the top of the cutouts. Compensating for this
-// origin preserves the centered zoom while letting the hem settle around it.
+// The mounting stud is the spatial reference: depth opens away from it,
+// and release returns to the same point without a centered zoom trajectory.
 const attachmentOrigin = "50% 3.5%";
-function hangingTransform(x: number, y: number, scale: number, angle: number, cutout = true) {
-  return `translate(${x}px, ${y}px) translateY(${cutout ? (1 - scale) * 46.5 : 0}%) scale(${scale}) rotate(${angle}deg)`;
+function hangingTransform(x: number, y: number, scale: number, angle: number) {
+  return `translate(${x}px, ${y}px) scale(${scale}) rotate(${angle}deg)`;
 }
 function subscribeMotion(callback: () => void) {
   const query = window.matchMedia(motionQuery);
@@ -115,9 +115,9 @@ export function MalumWallPiece({ src, alt, sizes, active = false, interactive = 
     };
     const resize = () => {
       measure();
-      if (phase.current === "mouse") animate(zoom, window.innerWidth <= 1100 ? 1.65 : 1.9, liftSpring);
+      if (phase.current === "mouse") animate(zoom, window.innerWidth <= 1100 ? 1.16 : 1.22, liftSpring);
     };
-    const raise = () => detach("mouse", window.innerWidth <= 1100 ? 1.65 : 1.9, 1);
+    const raise = () => detach("mouse", window.innerWidth <= 1100 ? 1.16 : 1.22, 1);
     const follow = (event: PointerEvent) => {
       if (event.pointerType !== "mouse") return;
       const control = (event.target as HTMLElement).closest("button");
@@ -125,8 +125,8 @@ export function MalumWallPiece({ src, alt, sizes, active = false, interactive = 
       raise();
       if (!cutout) return;
       const x = attraction(event.clientX - bounds.left - bounds.width / 2, bounds.width * .34);
-      pointerX.set(x * 36);
-      pointerY.set(attraction(event.clientY - bounds.top - bounds.height / 2, bounds.height * .34) * 22);
+      pointerX.set(x * 24);
+      pointerY.set(attraction(event.clientY - bounds.top - bounds.height / 2, bounds.height * .34) * 12);
       // Pull right: the hem trails right around the mounting stud, not the waist.
       swing.set(-x * 3);
     };
@@ -189,10 +189,10 @@ export function MalumWallPiece({ src, alt, sizes, active = false, interactive = 
       }
       if (!touch.dragged) return;
       if (event.cancelable) event.preventDefault();
-      detach("drag", 1.055, .55);
+      detach("drag", 1.035, .65);
       const pull = Math.tanh((touch.offsetX + x) / 70);
-      pointerX.set(pull * 32);
-      pointerY.set(Math.tanh((touch.offsetY + y) / 90) * 8);
+      pointerX.jump(pull * 32);
+      pointerY.jump(Math.tanh((touch.offsetY + y) / 90) * 8);
       swing.set(-pull * 3);
     };
     const up = (event: PointerEvent) => {
@@ -243,15 +243,15 @@ export function MalumWallPiece({ src, alt, sizes, active = false, interactive = 
   const bodyTransform = useTransform(() => {
     const x = cutout ? pointerX.get() * freedom.get() : 0;
     const y = cutout ? pointerY.get() * freedom.get() - lift.get() * 10 : 0;
-    return hangingTransform(x, y, zoom.get(), cutout ? swing.get() : 0, cutout);
+    return hangingTransform(x, y, zoom.get(), cutout ? swing.get() : 0);
   });
   const shadowTransform = useTransform(() => {
     const z = lift.get(), x = pointerX.get() * freedom.get(), y = pointerY.get() * freedom.get() - z * 10;
-    return hangingTransform(x + 2 + z * 20, y + 3 + z * 26, zoom.get(), swing.get());
+    return hangingTransform(x + 2 + z * 12, y + 3 + z * 18, zoom.get(), swing.get());
   });
   const contactTransform = useTransform(() => hangingTransform(2, 3, 1, swing.get()));
   const contactOpacity = useTransform(lift, [0, .2, 1], [0.17, .04, 0]);
-  const castOpacity = useTransform(lift, [0, .2, 1], [0, .12, .19]);
+  const castOpacity = useTransform(lift, [0, .2, 1], [0, .08, .14]);
   const lightOpacity = useTransform(lift, [0, 1], [0, 0.1]);
   const wallLightOpacity = useTransform(lift, [0, 1], [0, 0.55]);
   const lightTransform = useTransform(() => `translate3d(${pointerX.get() * freedom.get() * .55}%, ${pointerY.get() * freedom.get() * .55}%, 0)`);
