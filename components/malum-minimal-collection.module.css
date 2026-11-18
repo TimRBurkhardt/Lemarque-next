@@ -97,13 +97,8 @@
   .piece + .piece { margin-top: calc(var(--mobile-piece-height) * -.2); }
   .piece:nth-child(odd) { justify-self: start; left: -8px; }
   .piece:nth-child(even) { justify-self: end; left: 8px; }
-  .piece:nth-child(1) { --mobile-tilt: -5deg; }
-  .piece:nth-child(2) { --mobile-tilt: 6deg; }
-  .piece:nth-child(3) { --mobile-tilt: -6deg; }
-  .piece:nth-child(4) { --mobile-tilt: 5deg; }
-  .piece:nth-child(5) { --mobile-tilt: -4deg; }
   .pieceTrigger { position: relative; inset: auto; display: block; height: 100%; }
-  .imagePosition { transform: rotate(var(--mobile-tilt)); transform-origin: 50% 50%; transition: none; }
+  .imagePosition { transform: none; transition: none; }
   .piece[data-preview-active="true"] .image { transform: none; }
   .lineup[data-previewing="true"] .piece:not([data-preview-active="true"]) .image { opacity: 1; }
   .short .imagePosition { inset: 8% 0; }

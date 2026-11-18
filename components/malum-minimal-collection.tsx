@@ -27,9 +27,8 @@ const additionalViews = [
 ];
 
 const galleries = pieces.map((piece, index) => [
-  { src: `/collections/malum/campaign/suspended-v1/${piece.id}.webp`, label: "Garment", alt: `${piece.name}, empty and lightly suspended with relaxed fabric, isolated on a transparent background` },
+  { src: `/collections/malum/campaign/wall-v1/${piece.id}.webp`, label: "Garment", alt: `${piece.name} hanging naturally on a dark walnut hanger, with a ruby-red ornamental wall hook against a white wall` },
   ...additionalViews[index].map(view => ({ src: `/collections/malum/products/${piece.slug}/${view.file}.webp`, label: view.label, alt: `${piece.name}, ${view.label.toLowerCase()}` })),
-  ...(["otodus", "latex", "suit"].includes(piece.id) ? [{ src: `/collections/malum/campaign/white-v21/${piece.id}-side.webp`, label: "Side · garment", alt: `${piece.name}, isolated three-quarter side view` }] : []),
 ]);
 
 function subscribeGallery(callback: () => void) {
